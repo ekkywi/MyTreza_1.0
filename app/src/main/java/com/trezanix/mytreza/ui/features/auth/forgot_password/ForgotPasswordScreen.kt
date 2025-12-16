@@ -29,10 +29,7 @@ import com.trezanix.mytreza.ui.theme.*
 
 @Composable
 fun ForgotPasswordScreen(onNavigateToLogin: () -> Unit = {}) {
-    // State untuk input
     var email by remember { mutableStateOf("") }
-
-    // State untuk logika tampilan (Input vs Sukses)
     var isEmailSent by remember { mutableStateOf(false) }
     var isVisible by remember { mutableStateOf(false) }
 
@@ -47,12 +44,10 @@ fun ForgotPasswordScreen(onNavigateToLogin: () -> Unit = {}) {
             .fillMaxSize()
             .background(BrandBackground)
     ) {
-        // 1. Organic Soft Shapes (Background)
         Canvas(modifier = Modifier.fillMaxSize().blur(80.dp)) {
             val width = size.width
             val height = size.height
 
-            // Central Top Blob (Soft Indigo)
             drawCircle(
                 color = ShapeColor1.copy(alpha = 0.6f),
                 center = Offset(width * 0.5f, height * 0.1f),
@@ -70,21 +65,19 @@ fun ForgotPasswordScreen(onNavigateToLogin: () -> Unit = {}) {
             verticalArrangement = Arrangement.Center
         ) {
 
-            // --- HEADER ---
             AnimatedVisibility(
                 visible = isVisible,
                 enter = slideInVertically(initialOffsetY = { 50 }) + fadeIn(animationSpec = tween(800))
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     GradientText(
-                        text = stringResource(R.string.forgot_title), // "Account Recovery"
+                        text = stringResource(R.string.forgot_title),
                         style = MaterialTheme.typography.displaySmall,
                         brush = BrandGradient
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Subtitle hanya muncul jika belum terkirim agar tampilan bersih saat sukses
                     if (!isEmailSent) {
                         Text(
                             text = stringResource(R.string.forgot_subtitle),
@@ -99,7 +92,6 @@ fun ForgotPasswordScreen(onNavigateToLogin: () -> Unit = {}) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // --- MAIN CARD ---
             AnimatedVisibility(
                 visible = isVisible,
                 enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn(animationSpec = tween(800, delayMillis = 100))
@@ -107,7 +99,7 @@ fun ForgotPasswordScreen(onNavigateToLogin: () -> Unit = {}) {
                 Card(
                     modifier = Modifier.fillMaxWidth().wrapContentHeight(),
                     shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = SurfaceColor.copy(alpha = 0.95f)), // Glassmorphism
+                    colors = CardDefaults.cardColors(containerColor = SurfaceColor.copy(alpha = 0.95f)),
                     elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                 ) {
                     Column(
@@ -115,9 +107,7 @@ fun ForgotPasswordScreen(onNavigateToLogin: () -> Unit = {}) {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
 
-                        // LOGIKA SWAPPING UI (Input -> Success)
                         if (!isEmailSent) {
-                            // TAMPILAN 1: FORM INPUT EMAIL
                             TrezaTextField(
                                 value = email,
                                 onValueChange = { email = it },
@@ -128,14 +118,12 @@ fun ForgotPasswordScreen(onNavigateToLogin: () -> Unit = {}) {
                             Spacer(modifier = Modifier.height(24.dp))
 
                             TrezaButton(stringResource(R.string.forgot_button_request), {
-                                // Di sini nanti logika Firebase: auth.sendPasswordResetEmail(email)
                                 if (email.isNotEmpty()) {
-                                    isEmailSent = true // Ubah state menjadi sukses
+                                    isEmailSent = true
                                 }
                             })
 
                         } else {
-                            // TAMPILAN 2: PESAN SUKSES
                             Icon(
                                 imageVector = Icons.Default.MarkEmailRead,
                                 contentDescription = null,
@@ -154,7 +142,6 @@ fun ForgotPasswordScreen(onNavigateToLogin: () -> Unit = {}) {
 
                             Spacer(modifier = Modifier.height(8.dp))
 
-                            // Pesan tentang Spam Folder
                             Text(
                                 text = stringResource(R.string.forgot_success_desc),
                                 style = MaterialTheme.typography.bodyMedium,
@@ -164,7 +151,6 @@ fun ForgotPasswordScreen(onNavigateToLogin: () -> Unit = {}) {
 
                             Spacer(modifier = Modifier.height(24.dp))
 
-                            // Tombol untuk kembali ke login
                             TrezaButton(stringResource(R.string.forgot_button_back), {
                                 onNavigateToLogin()
                             })
@@ -175,8 +161,6 @@ fun ForgotPasswordScreen(onNavigateToLogin: () -> Unit = {}) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // --- FOOTER ---
-            // Hanya tampilkan footer "Remembered?" jika masih di form input
             if (!isEmailSent) {
                 Row(
                     modifier = Modifier.padding(bottom = 24.dp),

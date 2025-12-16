@@ -62,23 +62,20 @@ fun RegisterScreen(onNavigateToLogin: () -> Unit = {}) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(BrandBackground) // Soft Lavender Tint
+            .background(BrandBackground)
     ) {
-        // 1. Organic Soft Shapes
         Canvas(modifier = Modifier
             .fillMaxSize()
             .blur(80.dp)) {
             val width = size.width
             val height = size.height
 
-            // Top Right Blob (Pastel Indigo/Violet)
             drawCircle(
                 color = ShapeColor1,
                 center = Offset(width * 0.8f, height * 0.2f),
                 radius = width * 0.4f
             )
             
-            // Bottom Left Blob (Pastel Pink)
             drawCircle(
                 color = ShapeColor2,
                 center = Offset(width * 0.2f, height * 0.8f),
@@ -86,7 +83,6 @@ fun RegisterScreen(onNavigateToLogin: () -> Unit = {}) {
             )
         }
 
-        // 2. Scrollable Content
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -94,9 +90,9 @@ fun RegisterScreen(onNavigateToLogin: () -> Unit = {}) {
                 .verticalScroll(scrollState)
                 .systemBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center // Center content vertically
+            verticalArrangement = Arrangement.Center
         ) {
-            Spacer(modifier = Modifier.height(16.dp)) // Reduced from 32
+            Spacer(modifier = Modifier.height(16.dp))
             
             AnimatedVisibility(
                 visible = isVisible,
@@ -121,9 +117,8 @@ fun RegisterScreen(onNavigateToLogin: () -> Unit = {}) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp)) // Reduced from 32
+            Spacer(modifier = Modifier.height(16.dp))
             
-            // 3. Soft Card Container
             AnimatedVisibility(
                 visible = isVisible,
                 enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn(animationSpec = tween(800, delayMillis = 100))
@@ -133,18 +128,18 @@ fun RegisterScreen(onNavigateToLogin: () -> Unit = {}) {
                         .fillMaxWidth()
                         .wrapContentHeight(),
                     shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = SurfaceColor.copy(alpha = 0.95f)), // Glassmorphism
+                    colors = CardDefaults.cardColors(containerColor = SurfaceColor.copy(alpha = 0.95f)),
                     elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
                 ) {
                      Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 24.dp, vertical = 16.dp), // Reduced vertical padding
+                            .padding(horizontal = 24.dp, vertical = 16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         TrezaTextField(username, { username = it },
                             stringResource(R.string.register_label_username), Icons.Default.Person)
-                        Spacer(modifier = Modifier.height(8.dp)) // Reduced from 16
+                        Spacer(modifier = Modifier.height(8.dp))
                         TrezaTextField(fullname, { fullname = it },
                             stringResource(R.string.register_label_fullname), Icons.Default.Badge)
                         Spacer(modifier = Modifier.height(8.dp))
@@ -159,7 +154,6 @@ fun RegisterScreen(onNavigateToLogin: () -> Unit = {}) {
 
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        // Left Aligned Checkbox
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
                             TrezaCheckbox(
                                 text = privacyText,
@@ -168,17 +162,17 @@ fun RegisterScreen(onNavigateToLogin: () -> Unit = {}) {
                             )
                         }
                         
-                        Spacer(modifier = Modifier.height(24.dp)) // Reduced from 32
+                        Spacer(modifier = Modifier.height(24.dp))
                         TrezaButton(stringResource(R.string.register_button), { /* API Call */ })
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp)) // Reduced from 32
+            Spacer(modifier = Modifier.height(16.dp))
             
             // Footer
             Row(
-                 modifier = Modifier.padding(bottom = 16.dp), // Reduced from 24
+                 modifier = Modifier.padding(bottom = 16.dp),
                  horizontalArrangement = Arrangement.Center,
                  verticalAlignment = Alignment.CenterVertically
              ) {

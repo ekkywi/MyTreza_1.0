@@ -56,7 +56,6 @@ fun TrezaTextField(
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
     
-    // Animate Icon Color
     val iconColor by animateColorAsState(
         targetValue = if (isFocused) BrandPrimary else TextHint,
         animationSpec = tween(durationMillis = 300)
@@ -66,7 +65,7 @@ fun TrezaTextField(
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            interactionSource = interactionSource, // Pass interaction source
+            interactionSource = interactionSource,
             label = { 
                 Text(
                     text = label,
@@ -75,7 +74,7 @@ fun TrezaTextField(
                 )
             },
             leadingIcon = {
-                Icon(imageVector = leadingIcon, contentDescription = null, tint = iconColor) // Animated Tint
+                Icon(imageVector = leadingIcon, contentDescription = null, tint = iconColor)
             },
             trailingIcon = if (isPassword) {
                 {
@@ -118,7 +117,6 @@ fun TrezaButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     
-    // Bouncy Scale Animation
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.95f else 1f,
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
@@ -129,16 +127,16 @@ fun TrezaButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             onClick()
         },
-        interactionSource = interactionSource, // Pass interaction source
+        interactionSource = interactionSource,
         modifier = modifier
             .fillMaxWidth()
             .height(56.dp)
-            .graphicsLayer { // Apply Scale
+            .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
             }
             .shadow(
-                elevation = 8.dp, // Soft shadow
+                elevation = 8.dp,
                 shape = RoundedCornerShape(16.dp),
                 ambientColor = BrandPrimary.copy(alpha = 0.3f),
                 spotColor = BrandPrimary.copy(alpha = 0.5f)

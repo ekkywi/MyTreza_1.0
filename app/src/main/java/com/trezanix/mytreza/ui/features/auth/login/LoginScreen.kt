@@ -44,23 +44,20 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(BrandBackground) // Soft Lavender Tint
+            .background(BrandBackground)
     ) {
-        // 1. Organic Soft Shapes with BLUR (Atmospheric Glow)
         Canvas(modifier = Modifier
             .fillMaxSize()
             .blur(80.dp)) {
             val width = size.width
             val height = size.height
 
-            // Top Left Blob (Pastel Indigo)
             drawCircle(
                 color = ShapeColor1,
                 center = Offset(width * 0.1f, height * 0.1f),
-                radius = width * 0.6f // Larger radius for diffuse glow
+                radius = width * 0.6f
             )
             
-            // Bottom Right Blob (Pastel Pink)
             drawCircle(
                 color = ShapeColor2,
                 center = Offset(width * 0.9f, height * 0.9f),
@@ -68,7 +65,6 @@ fun LoginScreen(
             )
         }
 
-        // 2. Centered Content with Entry Animation
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -82,7 +78,6 @@ fun LoginScreen(
                 enter = slideInVertically(initialOffsetY = { 50 }) + fadeIn(animationSpec = tween(800))
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    // Header (Outside Card) with Gradient
                     GradientText(
                         text = stringResource(R.string.login_welcome_title),
                         style = MaterialTheme.typography.displaySmall,
@@ -99,7 +94,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // 3. Soft Card Container
             AnimatedVisibility(
                 visible = isVisible,
                 enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn(animationSpec = tween(800, delayMillis = 100))
@@ -154,7 +148,6 @@ fun LoginScreen(
             
             Spacer(modifier = Modifier.height(32.dp))
             
-            // Footer
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.login_footer_new_user), style = MaterialTheme.typography.bodyMedium, color = TextHint)
                 Text(
