@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">MyTreza</string>
+
+    <!--Login Screen-->
+    <string name="login_welcome_title">Nice to See You Again!</string>
+    <string name="login_subtitle">Come on, continue your financial journey.</string>
+    <string name="login_label_email">Email Address</string>
+    <string name="login_label_password">Password</string>
+    <string name="login_forgot_password">Forgot Password?</string>
+    <string name="login_button_signin">Get Me In</string>
+    <string name="login_footer_new_user">"New here? "</string>
+    <string name="login_footer_create_account">Join the Club</string>
+
+    <!--Register Screen-->
+    <string name="register_title">Start Your Journey</string>
+    <string name="register_subtitle">Create a free account and take control of your money today.</string>
+    <string name="register_label_username">Username</string>
+    <string name="register_label_fullname">Full Name</string>
+    <string name="register_label_email">Email Address</string>
+    <string name="register_label_password">Password</string>
+    <string name="register_label_password_confirmation">Confirm Password</string>
+    <string name="register_button">Join Now</string>
+    <string name="register_footer_existing_user">"Already have an account? "</string>
+    <string name="register_footer_login">Sign In</string>
+    <string name="register_checkbox_agree">"I agree to the "</string>
+    <string name="register_checkbox_terms_conditions"><![CDATA[Terms & Conditions]]></string>
+    <string name="register_checkbox_and">" and "</string>
+    <string name="register_checkbox_privacy_policy">Privacy Policy</string>
+
+    <!--Forgot Password Screen-->
+    <string name="forgot_title">"Let\'s Get You Back In</string>
+    <string name="forgot_subtitle">Don\'t worry, it happens to the best of us. Enter your email to reset your password.</string>
+    <string name="forgot_label_email">Your Registered Email</string>
+    <string name="forgot_button_request">Send Recovery Link</string>
+    <string name="forgot_success_title">It\'s on the Way!</string>
+    <string name="forgot_success_desc">We\'ve sent a secure link to your email. If it’s hiding, please check your Spam folder.</string>
+    <string name="forgot_button_back">Back to Login</string>
+    <string name="forgot_footer_question">"Wait, I remember! "</string>
+    <string name="forgot_footer_action">Log In Now</string>
+</resources>

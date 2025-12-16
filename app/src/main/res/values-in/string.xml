@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MyTreza</string>
+
+    <!--Login Screen-->
+    <string name="login_welcome_title">Senang Melihatmu Lagi!</string>
+    <string name="login_subtitle">Yuk, lanjutkan perjalanan finansialmu..</string>
+    <string name="login_label_email">Alamat Email</string>
+    <string name="login_label_password">Kata Sandi</string>
+    <string name="login_forgot_password">Lupa Kata Sandi?</string>
+    <string name="login_button_signin">Masuk ke Akunku</string>
+    <string name="login_footer_new_user">"Belum gabung? "</string>
+    <string name="login_footer_create_account">Ayo mulai sekarang</string>
+
+    <!--Register Screen-->
+    <string name="register_title">Mari Mulai Perjalananmu</string>
+    <string name="register_subtitle">Buat akun gratis dan ambil kendali atas uangmu mulai hari ini.</string>
+    <string name="register_label_username">Nama Pengguna</string>
+    <string name="register_label_fullname">Nama Lengkap</string>
+    <string name="register_label_email">Alamat Email</string>
+    <string name="register_label_password">Kata Sandi</string>
+    <string name="register_label_password_confirmation">Konfirmasi Kata Sandi</string>
+    <string name="register_button">Bergabung Sekarang</string>
+    <string name="register_footer_existing_user">"Sudah punya akun? "</string>
+    <string name="register_footer_login">Masuk</string>
+    <string name="register_checkbox_agree">"Saya setuju kepanda "</string>
+    <string name="register_checkbox_terms_conditions"><![CDATA[Syarat & Ketentuan]]></string>
+    <string name="register_checkbox_and">" dan "</string>
+    <string name="register_checkbox_privacy_policy">Kebijakan Privasi</string>
+
+    <!--Forgot Password Screen-->
+    <string name="forgot_title">Bantu Pulihkan Akunmu</string>
+    <string name="forgot_subtitle">Tenang saja, lupa itu wajar kok. Masukkan emailmu dan kami akan kirimkan link reset.</string>
+    <string name="forgot_label_email">Email Terdaftar</string>
+    <string name="forgot_button_request">Kirim Link Pemulihan</string>
+    <string name="forgot_success_title">Link Sudah Meluncur!</string>
+    <string name="forgot_success_desc">Cek inbox emailmu sekarang ya. Jika tidak ada, coba intip folder Spam/Junk.</string>
+    <string name="forgot_button_back">Kembali Masuk</string>
+    <string name="forgot_footer_question">Eh, sudah ingat? </string>
+    <string name="forgot_footer_action">Masuk Saja</string>
+</resources>
