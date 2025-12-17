@@ -7,11 +7,13 @@ import androidx.activity.enableEdgeToEdge
 import com.trezanix.mytreza.ui.navigation.AppNavigation
 import com.trezanix.mytreza.ui.theme.MyTrezaTheme
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.activity.enableEdgeToEdge
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
             MyTrezaTheme {
                 AppNavigation()
