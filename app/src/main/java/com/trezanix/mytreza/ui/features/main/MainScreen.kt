@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.trezanix.mytreza.ui.common.BottomNavItem
 import com.trezanix.mytreza.ui.features.analysis.AnalysisScreen
 import com.trezanix.mytreza.ui.features.dashboard.DashboardScreen
+import com.trezanix.mytreza.ui.features.main.components.AtomicBottomSheetContent
 import com.trezanix.mytreza.ui.features.profile.ProfileScreen
 import com.trezanix.mytreza.ui.features.wallet.WalletScreen
 import com.trezanix.mytreza.ui.theme.*
@@ -242,22 +243,12 @@ fun MainScreen() {
                 ModalBottomSheet(
                     onDismissRequest = { showAddSheet = false },
                     containerColor = SurfaceColor,
-                    dragHandle = { BottomSheetDefaults.DragHandle() }
+                    shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+                    dragHandle = null
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp)
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Atomic Action Menu\n(Coming Soon)",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = TextHint,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                        )
-                    }
+                    AtomicBottomSheetContent(
+                        onDismiss = { showAddSheet = false }
+                    )
                 }
             }
         }
@@ -274,7 +265,7 @@ fun GlassNavItem(
         targetValue = if (isSelected) 1.1f else 1.0f,
         label = "NavItemScale"
     )
-
+ // Market lagi merah
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
