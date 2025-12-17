@@ -266,7 +266,6 @@ fun GlassNavItem(
         targetValue = if (isSelected) 1.1f else 1.0f,
         label = "NavItemScale"
     )
- // Market lagi merah
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,

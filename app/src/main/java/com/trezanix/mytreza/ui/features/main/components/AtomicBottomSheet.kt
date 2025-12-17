@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,10 +20,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.trezanix.mytreza.ui.theme.BrandPrimary
-import com.trezanix.mytreza.ui.theme.BrandSecondary
 import com.trezanix.mytreza.ui.theme.SurfaceColor
 
 data class AtomicAction(
@@ -38,20 +36,35 @@ data class AtomicAction(
 fun AtomicBottomSheetContent(
     onDismiss: () -> Unit
 ) {
+    // Definisi 12 Aksi "Tambah Data" (Create New)
+    // Warna disesuaikan dengan MenuData.kt agar konsisten
     val actions = listOf(
-        AtomicAction("Transaksi", Icons.Default.Add, BrandPrimary) { /* TODO */ },
-        AtomicAction("Transfer", Icons.Default.SwapHoriz, BrandSecondary) { /* TODO */ },
-        AtomicAction("Scan QR", Icons.Default.QrCodeScanner, Color(0xFFF2994A)) { /* TODO */ },
-        AtomicAction("Top Up", Icons.Default.AccountBalanceWallet, Color(0xFF27AE60)) { /* TODO */ },
-        AtomicAction("Budget", Icons.Default.PieChart, Color(0xFFEB5757)) { /* TODO */ },
-        AtomicAction("Analisis", Icons.Default.Analytics, Color(0xFF9B51E0)) { /* TODO */ },
+        // Row 1: Daily Operations
+        AtomicAction("Scan", Icons.Default.QrCodeScanner, Color(0xFF2196F3)) { /* Buka Kamera */ },
+        AtomicAction("Transaksi", Icons.Default.ReceiptLong, Color(0xFF4CAF50)) { /* Form Transaksi */ },
+        AtomicAction("Pindah", Icons.Default.SyncAlt, Color(0xFFFF9800)) { /* Form Transfer */ },
+        AtomicAction("Dompet", Icons.Default.AccountBalanceWallet, Color(0xFF9C27B0)) { /* Form Tambah Akun Bank */ },
+
+        // Row 2: Planning & Control
+        AtomicAction("Budget", Icons.Default.Savings, Color(0xFF00BCD4)) { /* Form Tambah Budget */ },
+        AtomicAction("Tagihan", Icons.Default.Event, Color(0xFF673AB7)) { /* Form Tambah Tagihan */ },
+        AtomicAction("Goals", Icons.Default.Flag, Color(0xFFFF5722)) { /* Form Buat Goal Baru */ },
+        AtomicAction("Utang", Icons.Default.MoneyOff, Color(0xFFF44336)) { /* Form Catat Utang Baru */ },
+
+        // Row 3: Asset & Protection
+        AtomicAction("Saham", Icons.Default.ShowChart, Color(0xFF3F51B5)) { /* Form Beli Saham */ },
+        AtomicAction("Emas", Icons.Default.Stars, Color(0xFFFFC107)) { /* Form Beli Emas */ },
+        AtomicAction("Kripto", Icons.Default.CurrencyBitcoin, Color(0xFF607D8B)) { /* Form Beli Kripto */ },
+        AtomicAction("Proteksi", Icons.Default.Shield, Color(0xFF009688)) { /* Form Tambah Asuransi */ }
     )
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 48.dp)
+            .background(SurfaceColor)
+            .padding(bottom = 48.dp) // Padding bawah untuk safe area navigasi
     ) {
+        // Drag Handle
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -67,20 +80,28 @@ fun AtomicBottomSheetContent(
             )
         }
 
+        // Header
         Text(
-            text = "Aksi Cepat",
+            text = "Tambah Data Baru",
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Pilih kategori aktivitas yang ingin dicatat",
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.Gray,
+            modifier = Modifier.padding(horizontal = 24.dp).padding(bottom = 16.dp)
+        )
 
+        // Grid 4 Kolom x 3 Baris = 12 Items
         LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            contentPadding = PaddingValues(horizontal = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            horizontalArrangement = Arrangement.spacedBy(24.dp),
-            modifier = Modifier.heightIn(max = 300.dp)
+            columns = GridCells.Fixed(4), // 4 Kolom biar muat banyak
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.heightIn(max = 400.dp) // Height dinamis cukup
         ) {
             items(actions) { action ->
                 AtomicActionItem(action)
@@ -93,33 +114,37 @@ fun AtomicBottomSheetContent(
 fun AtomicActionItem(action: AtomicAction) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable { action.onClick() }
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .clickable { action.onClick() }
+            .padding(4.dp)
     ) {
+        // Icon Container
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(64.dp)
-                .clip(RoundedCornerShape(22.dp))
-                .background(action.color.copy(alpha = 0.15f))
+                .size(52.dp) // Ukuran sedikit lebih kecil (52dp) biar muat 4 kolom
+                .clip(RoundedCornerShape(18.dp)) // Squircle
+                .background(action.color.copy(alpha = 0.1f))
         ) {
             Icon(
                 imageVector = action.icon,
                 contentDescription = action.label,
                 tint = action.color,
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier.size(24.dp)
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
+        // Label Text
         Text(
             text = action.label,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontWeight = FontWeight.Medium,
-                fontSize = 13.sp
-            ),
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp), // Font kecil rapi
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
