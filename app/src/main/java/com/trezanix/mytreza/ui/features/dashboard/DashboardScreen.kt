@@ -47,7 +47,6 @@ fun DashboardScreen() {
                     when (featureId) {
                         FeatureID.WALLET -> { /* NavController.navigate("wallet") */ }
                         FeatureID.TRANSACTION -> { /* NavController.navigate("transaction") */ }
-                        // dst...
                         else -> { /* Coming Soon Toast */ }
                     }
                 },

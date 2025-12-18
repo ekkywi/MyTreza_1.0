@@ -36,7 +36,7 @@ fun DashboardHeader() {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "Sahabat Treza ✨",
+                text = "Trezanix Developer ✨",
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 22.sp
