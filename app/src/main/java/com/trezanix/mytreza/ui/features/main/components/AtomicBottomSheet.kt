@@ -1,5 +1,6 @@
 package com.trezanix.mytreza.ui.features.main.components
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,37 +36,45 @@ data class AtomicAction(
 
 @Composable
 fun AtomicBottomSheetContent(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onTransactionClick: () -> Unit = {},
+    onWalletClick: () -> Unit
 ) {
-    // Definisi 12 Aksi "Tambah Data" (Create New)
-    // Warna disesuaikan dengan MenuData.kt agar konsisten
+    val context = LocalContext.current
+
+    fun showComingSoon(feature: String) {
+        Toast.makeText(context, "Fitur $feature akan segera hadir!", Toast.LENGTH_SHORT).show()
+        onDismiss()
+    }
+
     val actions = listOf(
-        // Row 1: Daily Operations
-        AtomicAction("Scan", Icons.Default.QrCodeScanner, Color(0xFF2196F3)) { /* Buka Kamera */ },
-        AtomicAction("Transaksi", Icons.Default.ReceiptLong, Color(0xFF4CAF50)) { /* Form Transaksi */ },
-        AtomicAction("Pindah", Icons.Default.SyncAlt, Color(0xFFFF9800)) { /* Form Transfer */ },
-        AtomicAction("Dompet", Icons.Default.AccountBalanceWallet, Color(0xFF9C27B0)) { /* Form Tambah Akun Bank */ },
-
-        // Row 2: Planning & Control
-        AtomicAction("Budget", Icons.Default.Savings, Color(0xFF00BCD4)) { /* Form Tambah Budget */ },
-        AtomicAction("Tagihan", Icons.Default.Event, Color(0xFF673AB7)) { /* Form Tambah Tagihan */ },
-        AtomicAction("Goals", Icons.Default.Flag, Color(0xFFFF5722)) { /* Form Buat Goal Baru */ },
-        AtomicAction("Utang", Icons.Default.MoneyOff, Color(0xFFF44336)) { /* Form Catat Utang Baru */ },
-
-        // Row 3: Asset & Protection
-        AtomicAction("Saham", Icons.Default.ShowChart, Color(0xFF3F51B5)) { /* Form Beli Saham */ },
-        AtomicAction("Emas", Icons.Default.Stars, Color(0xFFFFC107)) { /* Form Beli Emas */ },
-        AtomicAction("Kripto", Icons.Default.CurrencyBitcoin, Color(0xFF607D8B)) { /* Form Beli Kripto */ },
-        AtomicAction("Proteksi", Icons.Default.Shield, Color(0xFF009688)) { /* Form Tambah Asuransi */ }
+        AtomicAction("Scan", Icons.Default.QrCodeScanner, Color(0xFF2196F3)) { showComingSoon("Scan") },
+        AtomicAction("Transaksi", Icons.Default.ReceiptLong, Color(0xFF4CAF50)) {
+            onDismiss()
+            onTransactionClick()
+        },
+        AtomicAction("Pindah", Icons.Default.SyncAlt, Color(0xFFFF9800)) { showComingSoon("Pindah") },
+        AtomicAction("Dompet", Icons.Default.AccountBalanceWallet, Color(0xFF9C27B0)) {
+            onDismiss()
+            onWalletClick()
+        },
+        AtomicAction("Budget", Icons.Default.Savings, Color(0xFF00BCD4)) { showComingSoon("Budget") },
+        AtomicAction("Tagihan", Icons.Default.Event, Color(0xFF673AB7)) { showComingSoon("Tagihan") },
+        AtomicAction("Goals", Icons.Default.Flag, Color(0xFFFF5722)) { showComingSoon("Goals") },
+        AtomicAction("Utang", Icons.Default.MoneyOff, Color(0xFFF44336)) { showComingSoon("Utang") },
+        AtomicAction("Saham", Icons.Default.ShowChart, Color(0xFF3F51B5)) { showComingSoon("Saham") },
+        AtomicAction("Emas", Icons.Default.Stars, Color(0xFFFFC107)) { showComingSoon("Emas") },
+        AtomicAction("Kripto", Icons.Default.CurrencyBitcoin, Color(0xFF607D8B)) { showComingSoon("Kripto") },
+        AtomicAction("Proteksi", Icons.Default.Shield, Color(0xFF009688)) { showComingSoon("Asuransi") }
     )
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(SurfaceColor)
-            .padding(bottom = 48.dp) // Padding bawah untuk safe area navigasi
+            .padding(bottom = 48.dp)
+            .navigationBarsPadding()
     ) {
-        // Drag Handle
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -80,7 +90,6 @@ fun AtomicBottomSheetContent(
             )
         }
 
-        // Header
         Text(
             text = "Tambah Data Baru",
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
@@ -95,13 +104,12 @@ fun AtomicBottomSheetContent(
             modifier = Modifier.padding(horizontal = 24.dp).padding(bottom = 16.dp)
         )
 
-        // Grid 4 Kolom x 3 Baris = 12 Items
         LazyVerticalGrid(
-            columns = GridCells.Fixed(4), // 4 Kolom biar muat banyak
+            columns = GridCells.Fixed(4),
             contentPadding = PaddingValues(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.heightIn(max = 400.dp) // Height dinamis cukup
+            modifier = Modifier.heightIn(max = 400.dp)
         ) {
             items(actions) { action ->
                 AtomicActionItem(action)
@@ -119,12 +127,11 @@ fun AtomicActionItem(action: AtomicAction) {
             .clickable { action.onClick() }
             .padding(4.dp)
     ) {
-        // Icon Container
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(52.dp) // Ukuran sedikit lebih kecil (52dp) biar muat 4 kolom
-                .clip(RoundedCornerShape(18.dp)) // Squircle
+                .size(52.dp)
+                .clip(RoundedCornerShape(18.dp))
                 .background(action.color.copy(alpha = 0.1f))
         ) {
             Icon(
@@ -137,10 +144,9 @@ fun AtomicActionItem(action: AtomicAction) {
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        // Label Text
         Text(
             text = action.label,
-            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp), // Font kecil rapi
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
             maxLines = 1,

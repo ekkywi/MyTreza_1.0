@@ -31,15 +31,27 @@ import com.trezanix.mytreza.ui.features.main.components.AtomicBottomSheetContent
 import com.trezanix.mytreza.ui.features.profile.ProfileScreen
 import com.trezanix.mytreza.ui.features.wallet.WalletScreen
 import com.trezanix.mytreza.ui.features.wallet.WalletDetailScreen
+import com.trezanix.mytreza.ui.features.wallet.WalletFormScreen // ✅ Import Form
 import com.trezanix.mytreza.ui.theme.*
+
+// ✅ 1. Definisi State Navigasi Wallet (Harus ada di sini)
+sealed class WalletNavState {
+    object List : WalletNavState()
+    data class Detail(val id: Int) : WalletNavState()
+    data class Form(val id: Int? = null) : WalletNavState() // id null = Add, id ada = Edit
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
     var currentScreen by remember { mutableStateOf<BottomNavItem>(BottomNavItem.Dashboard) }
-    var selectedWalletId by remember { mutableStateOf<Int?>(null) }
+
+    // ✅ 2. State Baru (Pengganti selectedWalletId)
+    var walletNavState by remember { mutableStateOf<WalletNavState>(WalletNavState.List) }
+
     var showAddSheet by remember { mutableStateOf(false) }
 
+    // --- ANIMASI AURORA (Background) ---
     val infiniteTransition = rememberInfiniteTransition(label = "AuroraBreathing")
     val offset1 by infiniteTransition.animateFloat(
         initialValue = 0f, targetValue = 50f,
@@ -55,6 +67,7 @@ fun MainScreen() {
             repeatMode = RepeatMode.Reverse
         ), label = "Scale1"
     )
+
     val offset2 by infiniteTransition.animateFloat(
         initialValue = 0f, targetValue = -40f,
         animationSpec = infiniteRepeatable(
@@ -70,11 +83,15 @@ fun MainScreen() {
         ), label = "Scale2"
     )
 
-    BackHandler(enabled = showAddSheet || selectedWalletId != null || currentScreen != BottomNavItem.Dashboard) {
+    // ✅ 3. BackHandler yang Diperbarui
+    // Jika sedang di Wallet Detail/Form, tombol back akan mengembalikan ke List Wallet dulu
+    BackHandler(enabled = showAddSheet || (currentScreen == BottomNavItem.Wallet && walletNavState !is WalletNavState.List) || currentScreen != BottomNavItem.Dashboard) {
         when {
             showAddSheet -> showAddSheet = false
-            selectedWalletId != null -> selectedWalletId = null
-            else -> currentScreen = BottomNavItem.Dashboard
+            currentScreen == BottomNavItem.Wallet && walletNavState !is WalletNavState.List -> {
+                walletNavState = WalletNavState.List // Balik ke list wallet
+            }
+            else -> currentScreen = BottomNavItem.Dashboard // Balik ke dashboard
         }
     }
 
@@ -83,6 +100,7 @@ fun MainScreen() {
             .fillMaxSize()
             .background(BrandBackground)
     ) {
+        // --- CANVAS BACKGROUND ---
         Canvas(modifier = Modifier.fillMaxSize().blur(60.dp)) {
             val width = size.width
             val height = size.height
@@ -138,26 +156,26 @@ fun MainScreen() {
                         ) {
                             GlassNavItem(BottomNavItem.Dashboard, currentScreen == BottomNavItem.Dashboard) {
                                 currentScreen = BottomNavItem.Dashboard
-                                selectedWalletId = null
+                                walletNavState = WalletNavState.List
                             }
                             GlassNavItem(BottomNavItem.Analysis, currentScreen == BottomNavItem.Analysis) {
                                 currentScreen = BottomNavItem.Analysis
-                                selectedWalletId = null
                             }
 
                             Spacer(modifier = Modifier.width(60.dp))
 
                             GlassNavItem(BottomNavItem.Wallet, currentScreen == BottomNavItem.Wallet) {
+                                // Jika klik tab Wallet, reset state ke List
                                 currentScreen = BottomNavItem.Wallet
-                                if (currentScreen == BottomNavItem.Wallet) selectedWalletId = null
+                                walletNavState = WalletNavState.List
                             }
                             GlassNavItem(BottomNavItem.Profile, currentScreen == BottomNavItem.Profile) {
                                 currentScreen = BottomNavItem.Profile
-                                selectedWalletId = null
                             }
                         }
                     }
 
+                    // --- FAB ADD ---
                     val fabShape = RoundedCornerShape(20.dp)
                     Box(
                         contentAlignment = Alignment.Center,
@@ -187,33 +205,48 @@ fun MainScreen() {
                     animationSpec = tween(durationMillis = 300)
                 ) { targetState ->
                     when (targetState) {
-                        BottomNavItem.Dashboard -> {
-                            DashboardScreen(
-                                onNavigateToWallet = {
-                                    currentScreen = BottomNavItem.Wallet
-                                    selectedWalletId = null
-                                }
-                            )
-                        }
+                        BottomNavItem.Dashboard -> DashboardScreen(
+                            onNavigateToWallet = {
+                                // Navigasi dari Dashboard Menu -> Wallet
+                                currentScreen = BottomNavItem.Wallet
+                                walletNavState = WalletNavState.List
+                            }
+                        )
                         BottomNavItem.Analysis -> AnalysisScreen()
+
+                        // ✅ 4. Logika Navigasi Wallet yang Baru
                         BottomNavItem.Wallet -> {
-                            Crossfade(targetState = selectedWalletId, label = "WalletDetailTransition") { walletId ->
-                                if (walletId == null) {
-                                    WalletScreen(
-                                        onWalletClick = { id -> selectedWalletId = id },
-                                        onAddWalletClick = {/* Handle Tambah Wallet */},
-                                    )
-                                } else {
-                                    WalletDetailScreen(
-                                        walletId = walletId,
-                                        onBackClick = { selectedWalletId = null },
-                                        onEditClick = { /* Handle Edit */ },
-                                        onArchiveClick = {
-                                            selectedWalletId = null
-                                        },
-                                        onDeleteClick = { selectedWalletId = null},
-                                        onSeeAllClick = {/* Handle Full History */ }
-                                    )
+                            Crossfade(targetState = walletNavState, label = "WalletNavTransition") { state ->
+                                when (state) {
+                                    is WalletNavState.List -> {
+                                        WalletScreen(
+                                            onWalletClick = { id -> walletNavState = WalletNavState.Detail(id) },
+                                            onAddWalletClick = { walletNavState = WalletNavState.Form(null) }
+                                        )
+                                    }
+                                    is WalletNavState.Detail -> {
+                                        WalletDetailScreen(
+                                            walletId = state.id,
+                                            onBackClick = { walletNavState = WalletNavState.List },
+                                            onEditClick = { walletNavState = WalletNavState.Form(state.id) },
+                                            onArchiveClick = { walletNavState = WalletNavState.List },
+                                            onDeleteClick = { walletNavState = WalletNavState.List },
+                                            onSeeAllClick = { /* TODO: Lihat History Full */ }
+                                        )
+                                    }
+                                    is WalletNavState.Form -> {
+                                        WalletFormScreen(
+                                            walletId = state.id,
+                                            onNavigateBack = {
+                                                // Jika Add (id null) balik ke List, Jika Edit balik ke Detail
+                                                if (state.id == null) walletNavState = WalletNavState.List
+                                                else walletNavState = WalletNavState.Detail(state.id)
+                                            },
+                                            onSaveClick = {
+                                                walletNavState = WalletNavState.List
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -223,20 +256,36 @@ fun MainScreen() {
                 }
             }
 
+            // ✅ 5. BottomSheet dengan Callback Dompet
             if (showAddSheet) {
                 ModalBottomSheet(
                     onDismissRequest = { showAddSheet = false },
                     containerColor = SurfaceColor,
                     shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-                    dragHandle = null
+                    dragHandle = { BottomSheetDefaults.DragHandle() }
                 ) {
-                    AtomicBottomSheetContent(onDismiss = { showAddSheet = false })
+                    AtomicBottomSheetContent(
+                        onDismiss = { showAddSheet = false },
+
+                        // Callback saat menu Dompet diklik di Sheet
+                        onWalletClick = {
+                            showAddSheet = false
+                            currentScreen = BottomNavItem.Wallet // Pindah tab
+                            walletNavState = WalletNavState.Form(null) // Buka Form Tambah
+                        },
+
+                        onTransactionClick = {
+                            // TODO: Nanti arahkan ke Form Transaksi
+                            showAddSheet = false
+                        }
+                    )
                 }
             }
         }
     }
 }
 
+// --- GLASS NAV ITEM ---
 @Composable
 fun GlassNavItem(
     item: BottomNavItem,
