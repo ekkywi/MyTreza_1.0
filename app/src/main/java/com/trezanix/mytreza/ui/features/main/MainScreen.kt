@@ -187,7 +187,14 @@ fun MainScreen() {
                     animationSpec = tween(durationMillis = 300)
                 ) { targetState ->
                     when (targetState) {
-                        BottomNavItem.Dashboard -> DashboardScreen()
+                        BottomNavItem.Dashboard -> {
+                            DashboardScreen(
+                                onNavigateToWallet = {
+                                    currentScreen = BottomNavItem.Wallet
+                                    selectedWalletId = null
+                                }
+                            )
+                        }
                         BottomNavItem.Analysis -> AnalysisScreen()
                         BottomNavItem.Wallet -> {
                             Crossfade(targetState = selectedWalletId, label = "WalletDetailTransition") { walletId ->

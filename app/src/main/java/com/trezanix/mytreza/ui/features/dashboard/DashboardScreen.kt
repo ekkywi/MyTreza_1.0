@@ -12,9 +12,10 @@ import androidx.compose.ui.unit.dp
 import com.trezanix.mytreza.ui.features.dashboard.components.*
 
 @Composable
-fun DashboardScreen() {
+fun DashboardScreen(
+    onNavigateToWallet: () -> Unit = {}
+) {
     var userMenus by remember { mutableStateOf(MenuProvider.allMenus) }
-
     var showCustomizeScreen by remember { mutableStateOf(false) }
 
     if (showCustomizeScreen) {
@@ -45,7 +46,9 @@ fun DashboardScreen() {
                 onMenuClick = { featureId ->
                     // TODO: Handle Navigasi ke Fitur disini
                     when (featureId) {
-                        FeatureID.WALLET -> { /* NavController.navigate("wallet") */ }
+                        FeatureID.WALLET -> {
+                            onNavigateToWallet()
+                        }
                         FeatureID.TRANSACTION -> { /* NavController.navigate("transaction") */ }
                         else -> { /* Coming Soon Toast */ }
                     }
