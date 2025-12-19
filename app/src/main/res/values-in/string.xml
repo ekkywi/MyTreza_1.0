@@ -11,6 +11,7 @@
     <string name="login_button_signin">Masuk ke Akunku</string>
     <string name="login_footer_new_user">"Belum gabung? "</string>
     <string name="login_footer_create_account">Ayo mulai sekarang</string>
+    <string name="login_validation_empty">Silakan isi Email dan Kata Sandi</string>
 
     <!--Register Screen-->
     <string name="register_title">Mari Mulai Perjalananmu</string>
@@ -27,6 +28,9 @@
     <string name="register_checkbox_terms_conditions"><![CDATA[Syarat & Ketentuan]]></string>
     <string name="register_checkbox_and">" dan "</string>
     <string name="register_checkbox_privacy_policy">Kebijakan Privasi</string>
+    <string name="register_success">Akun berhasil dibuat! Silakan Masuk.</string>
+    <string name="register_validation_terms"><![CDATA[Harap setujui Syarat & Ketentuan]]></string>
+    <string name="register_validation_empty">Silakan lengkapi data pendaftarannya</string>
 
     <!--Forgot Password Screen-->
     <string name="forgot_title">Bantu Pulihkan Akunmu</string>

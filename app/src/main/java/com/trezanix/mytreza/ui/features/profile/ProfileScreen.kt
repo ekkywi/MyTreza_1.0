@@ -20,10 +20,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.trezanix.mytreza.ui.common.AuthViewModel
 import com.trezanix.mytreza.ui.features.profile.components.*
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    viewModel: AuthViewModel = viewModel()
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -84,7 +88,9 @@ fun ProfileScreen() {
                 icon = Icons.Default.Logout,
                 title = "Keluar",
                 isDestructive = true,
-                onClick = { /* Handle Logout */ }
+                onClick = {
+                    viewModel.logout()
+                }
             )
         }
 

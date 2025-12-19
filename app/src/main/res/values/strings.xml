@@ -10,6 +10,7 @@
     <string name="login_button_signin">Get Me In</string>
     <string name="login_footer_new_user">"New here? "</string>
     <string name="login_footer_create_account">Join the Club</string>
+    <string name="login_validation_empty">Please fill in Email and Password</string>
 
     <!--Register Screen-->
     <string name="register_title">Start Your Journey</string>
@@ -26,6 +27,9 @@
     <string name="register_checkbox_terms_conditions"><![CDATA[Terms & Conditions]]></string>
     <string name="register_checkbox_and">" and "</string>
     <string name="register_checkbox_privacy_policy">Privacy Policy</string>
+    <string name="register_success">Account created successfully! Please Login.</string>
+    <string name="register_validation_terms"><![CDATA[Please agree to the Terms & Conditions]]></string>
+    <string name="register_validation_empty">Please complete the registration data</string>
 
     <!--Forgot Password Screen-->
     <string name="forgot_title">"Let\'s Get You Back In</string>
@@ -37,4 +41,5 @@
     <string name="forgot_button_back">Back to Login</string>
     <string name="forgot_footer_question">"Wait, I remember! "</string>
     <string name="forgot_footer_action">Log In Now</string>
+
 </resources>

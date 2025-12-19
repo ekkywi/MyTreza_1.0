@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import com.trezanix.mytreza.R
 import com.trezanix.mytreza.ui.common.*
 import com.trezanix.mytreza.ui.theme.*
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun LoginScreen(
@@ -35,6 +37,7 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isVisible by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         isVisible = true
@@ -103,8 +106,8 @@ fun LoginScreen(
                         .fillMaxWidth()
                         .wrapContentHeight(),
                     shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = SurfaceColor.copy(alpha = 0.95f)), // Glassmorphism
-                    elevation = CardDefaults.cardElevation(defaultElevation = 10.dp) // Soft shadow
+                    colors = CardDefaults.cardColors(containerColor = SurfaceColor.copy(alpha = 0.95f)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
                 ) {
                     Column(
                         modifier = Modifier
@@ -141,7 +144,17 @@ fun LoginScreen(
                             )
                         }
                         
-                        TrezaButton(stringResource(R.string.login_button_signin), { onLoginSuccess() })
+                        TrezaButton(
+                            stringResource(R.string.login_button_signin),
+                            {
+                                if (email.isNotEmpty() && password.isNotEmpty()) {
+                                    onLoginSuccess()
+                               } else {
+                                    Toast.makeText(context,
+                                        context.getString(R.string.login_validation_empty), Toast.LENGTH_SHORT).show()
+                                }
+                           }
+                        )
                     }
                 }
             }

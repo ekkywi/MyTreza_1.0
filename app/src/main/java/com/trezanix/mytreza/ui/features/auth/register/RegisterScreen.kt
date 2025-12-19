@@ -1,5 +1,6 @@
 package com.trezanix.mytreza.ui.features.auth.register
 
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -42,6 +44,7 @@ fun RegisterScreen(onNavigateToLogin: () -> Unit = {}) {
     LaunchedEffect(Unit) {
         isVisible = true
     }
+    val context = LocalContext.current
 
     val scrollState = rememberScrollState()
 
@@ -163,7 +166,32 @@ fun RegisterScreen(onNavigateToLogin: () -> Unit = {}) {
                         }
                         
                         Spacer(modifier = Modifier.height(24.dp))
-                        TrezaButton(stringResource(R.string.register_button), { /* API Call */ })
+                        TrezaButton(stringResource(R.string.register_button),
+                            {
+                                if (username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
+                                    if (isChecked) {
+                                        Toast.makeText(
+                                            context,
+                                            context.getString(R.string.register_success),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        onNavigateToLogin()
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            context.getString(R.string.register_validation_terms),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.register_validation_empty),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        )
                     }
                 }
             }
