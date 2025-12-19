@@ -30,13 +30,16 @@ import com.trezanix.mytreza.ui.features.dashboard.DashboardScreen
 import com.trezanix.mytreza.ui.features.main.components.AtomicBottomSheetContent
 import com.trezanix.mytreza.ui.features.profile.ProfileScreen
 import com.trezanix.mytreza.ui.features.wallet.WalletScreen
+import com.trezanix.mytreza.ui.features.wallet.WalletDetailScreen
 import com.trezanix.mytreza.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
     var currentScreen by remember { mutableStateOf<BottomNavItem>(BottomNavItem.Dashboard) }
+    var selectedWalletId by remember { mutableStateOf<Int?>(null) }
     var showAddSheet by remember { mutableStateOf(false) }
+
     val infiniteTransition = rememberInfiniteTransition(label = "AuroraBreathing")
     val offset1 by infiniteTransition.animateFloat(
         initialValue = 0f, targetValue = 50f,
@@ -52,7 +55,6 @@ fun MainScreen() {
             repeatMode = RepeatMode.Reverse
         ), label = "Scale1"
     )
-
     val offset2 by infiniteTransition.animateFloat(
         initialValue = 0f, targetValue = -40f,
         animationSpec = infiniteRepeatable(
@@ -68,8 +70,12 @@ fun MainScreen() {
         ), label = "Scale2"
     )
 
-    BackHandler(enabled = currentScreen != BottomNavItem.Dashboard) {
-        currentScreen = BottomNavItem.Dashboard
+    BackHandler(enabled = showAddSheet || selectedWalletId != null || currentScreen != BottomNavItem.Dashboard) {
+        when {
+            showAddSheet -> showAddSheet = false
+            selectedWalletId != null -> selectedWalletId = null
+            else -> currentScreen = BottomNavItem.Dashboard
+        }
     }
 
     Box(
@@ -77,55 +83,30 @@ fun MainScreen() {
             .fillMaxSize()
             .background(BrandBackground)
     ) {
-        Canvas(modifier = Modifier
-            .fillMaxSize()
-            .blur(60.dp)) {
+        Canvas(modifier = Modifier.fillMaxSize().blur(60.dp)) {
             val width = size.width
             val height = size.height
-
             drawCircle(
                 brush = Brush.radialGradient(
-                    colors = listOf(
-                        BrandPrimary.copy(alpha = 0.40f),
-                        BrandPrimary.copy(alpha = 0.15f),
-                        Color.Transparent
-                    ),
+                    colors = listOf(BrandPrimary.copy(alpha = 0.40f), BrandPrimary.copy(alpha = 0.15f), Color.Transparent),
                     center = Offset(width * 0.2f, height * 0.2f + offset1),
                     radius = width * 0.9f * scale1
-                ),
-                center = Offset(width * 0.2f, height * 0.2f),
-                radius = width * 0.8f
+                ), center = Offset(width * 0.2f, height * 0.2f), radius = width * 0.8f
             )
-
             drawCircle(
                 brush = Brush.radialGradient(
-                    colors = listOf(
-                        BrandAccent.copy(alpha = 0.35f),
-                        BrandAccent.copy(alpha = 0.10f),
-                        Color.Transparent
-                    ),
+                    colors = listOf(BrandAccent.copy(alpha = 0.35f), BrandAccent.copy(alpha = 0.10f), Color.Transparent),
                     center = Offset(width * 0.8f + offset2, height * 0.8f),
                     radius = width * 0.8f * scale2
-                ),
-                center = Offset(width * 0.8f, height * 0.8f),
-                radius = width * 0.8f
+                ), center = Offset(width * 0.8f, height * 0.8f), radius = width * 0.8f
             )
-
             drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        BrandSecondary.copy(alpha = 0.3f),
-                        Color.Transparent
-                    ),
-                    center = Offset(width * 0.5f, height * 0.5f),
-                    radius = width * 0.7f
-                )
+                brush = Brush.radialGradient(colors = listOf(BrandSecondary.copy(alpha = 0.3f), Color.Transparent), center = Offset(width * 0.5f, height * 0.5f), radius = width * 0.7f)
             )
         }
 
         Scaffold(
             containerColor = Color.Transparent,
-
             bottomBar = {
                 Box(
                     modifier = Modifier
@@ -142,17 +123,12 @@ fun MainScreen() {
                             .border(
                                 width = 1.dp,
                                 brush = Brush.verticalGradient(
-                                    colors = listOf(
-                                        Color.White.copy(alpha = 0.7f),
-                                        Color.White.copy(alpha = 0.1f)
-                                    )
+                                    colors = listOf(Color.White.copy(alpha = 0.7f), Color.White.copy(alpha = 0.1f))
                                 ),
                                 shape = RoundedCornerShape(24.dp)
                             ),
                         shape = RoundedCornerShape(24.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = SurfaceColor.copy(alpha = 0.90f)
-                        ),
+                        colors = CardDefaults.cardColors(containerColor = SurfaceColor.copy(alpha = 0.90f)),
                         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
                     ) {
                         Row(
@@ -160,62 +136,41 @@ fun MainScreen() {
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            GlassNavItem(
-                                item = BottomNavItem.Dashboard,
-                                isSelected = currentScreen == BottomNavItem.Dashboard,
-                                onClick = { currentScreen = BottomNavItem.Dashboard }
-                            )
-                            GlassNavItem(
-                                item = BottomNavItem.Analysis,
-                                isSelected = currentScreen == BottomNavItem.Analysis,
-                                onClick = { currentScreen = BottomNavItem.Analysis }
-                            )
+                            GlassNavItem(BottomNavItem.Dashboard, currentScreen == BottomNavItem.Dashboard) {
+                                currentScreen = BottomNavItem.Dashboard
+                                selectedWalletId = null
+                            }
+                            GlassNavItem(BottomNavItem.Analysis, currentScreen == BottomNavItem.Analysis) {
+                                currentScreen = BottomNavItem.Analysis
+                                selectedWalletId = null
+                            }
 
                             Spacer(modifier = Modifier.width(60.dp))
 
-                            GlassNavItem(
-                                item = BottomNavItem.Wallet,
-                                isSelected = currentScreen == BottomNavItem.Wallet,
-                                onClick = { currentScreen = BottomNavItem.Wallet }
-                            )
-                            GlassNavItem(
-                                item = BottomNavItem.Profile,
-                                isSelected = currentScreen == BottomNavItem.Profile,
-                                onClick = { currentScreen = BottomNavItem.Profile }
-                            )
+                            GlassNavItem(BottomNavItem.Wallet, currentScreen == BottomNavItem.Wallet) {
+                                currentScreen = BottomNavItem.Wallet
+                                if (currentScreen == BottomNavItem.Wallet) selectedWalletId = null
+                            }
+                            GlassNavItem(BottomNavItem.Profile, currentScreen == BottomNavItem.Profile) {
+                                currentScreen = BottomNavItem.Profile
+                                selectedWalletId = null
+                            }
                         }
                     }
 
                     val fabShape = RoundedCornerShape(20.dp)
-
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .offset(y = (-10).dp)
                             .size(60.dp)
-                            .shadow(
-                                elevation = 10.dp,
-                                shape = fabShape,
-                                spotColor = BrandPrimary
-                            )
-                            .border(
-                                width = 4.dp,
-                                color = SurfaceColor.copy(alpha = 0.5f),
-                                shape = fabShape
-                            )
-                            .background(
-                                brush = BrandGradient,
-                                shape = fabShape
-                            )
+                            .shadow(elevation = 10.dp, shape = fabShape, spotColor = BrandPrimary)
+                            .border(width = 4.dp, color = SurfaceColor.copy(alpha = 0.5f), shape = fabShape)
+                            .background(brush = BrandGradient, shape = fabShape)
                             .clip(fabShape)
                             .clickable { showAddSheet = true }
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Add Transaction",
-                            tint = Color.White,
-                            modifier = Modifier.size(32.dp)
-                        )
+                        Icon(Icons.Default.Add, "Add Transaction", tint = Color.White, modifier = Modifier.size(32.dp))
                     }
                 }
             }
@@ -234,7 +189,28 @@ fun MainScreen() {
                     when (targetState) {
                         BottomNavItem.Dashboard -> DashboardScreen()
                         BottomNavItem.Analysis -> AnalysisScreen()
-                        BottomNavItem.Wallet -> WalletScreen()
+                        BottomNavItem.Wallet -> {
+                            Crossfade(targetState = selectedWalletId, label = "WalletDetailTransition") { walletId ->
+                                if (walletId == null) {
+                                    WalletScreen(
+                                        onWalletClick = { id -> selectedWalletId = id },
+                                        onAddWalletClick = {/* Handle Tambah Wallet */},
+                                    )
+                                } else {
+                                    WalletDetailScreen(
+                                        walletId = walletId,
+                                        onBackClick = { selectedWalletId = null },
+                                        onEditClick = { /* Handle Edit */ },
+                                        onArchiveClick = {
+                                            selectedWalletId = null
+                                        },
+                                        onDeleteClick = { selectedWalletId = null},
+                                        onSeeAllClick = {/* Handle Full History */ }
+                                    )
+                                }
+                            }
+                        }
+
                         BottomNavItem.Profile -> ProfileScreen()
                     }
                 }
@@ -247,9 +223,7 @@ fun MainScreen() {
                     shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
                     dragHandle = null
                 ) {
-                    AtomicBottomSheetContent(
-                        onDismiss = { showAddSheet = false }
-                    )
+                    AtomicBottomSheetContent(onDismiss = { showAddSheet = false })
                 }
             }
         }
