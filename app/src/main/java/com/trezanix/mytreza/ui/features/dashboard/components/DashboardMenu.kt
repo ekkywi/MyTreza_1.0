@@ -1,5 +1,6 @@
 package com.trezanix.mytreza.ui.features.dashboard.components
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,13 +17,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.trezanix.mytreza.R
 import com.trezanix.mytreza.ui.theme.BrandPrimary
-import com.trezanix.mytreza.ui.theme.SurfaceColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,6 +34,8 @@ fun DashboardMenuSection(
     onMenuClick: (FeatureID) -> Unit,
     onEditMenuClick: () -> Unit
 ) {
+    val context = LocalContext.current
+
     var showMoreSheet by remember { mutableStateOf(false) }
 
     val quickMenus = remember(userMenuList) {
@@ -38,6 +43,20 @@ fun DashboardMenuSection(
             userMenuList
         } else {
             userMenuList.take(7) + MenuProvider.moreItem
+        }
+    }
+
+    fun handleItemClick(item: TrezaMenuItem) {
+        if (item.id == FeatureID.MORE) {
+            showMoreSheet = true
+        }
+        else if (item.isComingSoon) {
+            val featureName = context.getString(item.title)
+            val message = context.getString(R.string.dashboard_toast_coming_soon, featureName)
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
+        else {
+            onMenuClick(item.id)
         }
     }
 
@@ -54,11 +73,7 @@ fun DashboardMenuSection(
         ) {
             items(quickMenus) { item ->
                 MenuIconItem(item = item, onClick = {
-                    if (item.id == FeatureID.MORE) {
-                        showMoreSheet = true
-                    } else {
-                        onMenuClick(item.id)
-                    }
+                    handleItemClick(item)
                 })
             }
         }
@@ -82,7 +97,7 @@ fun DashboardMenuSection(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Semua Fitur",
+                        text = stringResource(R.string.dashboard_menu_all_features),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = Color.Black
                     )
@@ -97,7 +112,7 @@ fun DashboardMenuSection(
                     ) {
                         Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(14.dp), tint = BrandPrimary)
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Atur", style = MaterialTheme.typography.labelMedium, color = BrandPrimary)
+                        Text(stringResource(R.string.dashboard_menu_set), style = MaterialTheme.typography.labelMedium, color = BrandPrimary)
                     }
                 }
 
@@ -105,14 +120,22 @@ fun DashboardMenuSection(
 
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(4),
-                    modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 400.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(userMenuList) { item ->
                         MenuIconItem(item = item, onClick = {
                             showMoreSheet = false
-                            onMenuClick(item.id)
+                            if (item.isComingSoon) {
+                                val featureName = context.getString(item.title)
+                                val message = context.getString(R.string.dashboard_toast_coming_soon, featureName)
+                                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                            } else {
+                                onMenuClick(item.id)
+                            }
                         })
                     }
                 }
@@ -148,7 +171,7 @@ fun MenuIconItem(
         ) {
             Icon(
                 imageVector = item.icon,
-                contentDescription = item.title,
+                contentDescription = stringResource(item.title),
                 tint = if (item.id == FeatureID.MORE) moreIconColor else item.color,
                 modifier = Modifier.size(28.dp)
             )
@@ -157,7 +180,7 @@ fun MenuIconItem(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = item.title,
+            text = stringResource(item.title),
             style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
             color = labelColor,
             maxLines = 1,

@@ -14,9 +14,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.trezanix.mytreza.R
 import com.trezanix.mytreza.ui.features.dashboard.components.TrezaMenuItem
 import com.trezanix.mytreza.ui.theme.BrandPrimary
 import java.util.Collections
@@ -36,14 +38,14 @@ fun MenuCustomizationScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Atur Menu Dashboard", style = MaterialTheme.typography.titleMedium) },
+                title = { Text(stringResource(R.string.dashboard_menu_set_dashboard_menu), style = MaterialTheme.typography.titleMedium) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.White,
                     titleContentColor = primaryTextColor
                 ),
                 actions = {
                     TextButton(onClick = { onSave(editableList) }) {
-                        Text("Simpan", color = BrandPrimary, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.dashboard_menu_save), color = BrandPrimary, fontWeight = FontWeight.Bold)
                     }
                 }
             )
@@ -59,7 +61,7 @@ fun MenuCustomizationScreen(
                     .padding(12.dp)
             ) {
                 Text(
-                    text = "7 Menu teratas akan muncul di halaman utama. Gunakan panah untuk mengatur prioritas.",
+                    text = stringResource(R.string.dashboard_menu_top_priority_menu),
                     style = MaterialTheme.typography.bodySmall,
                     color = BrandPrimary
                 )
@@ -105,13 +107,13 @@ fun MenuCustomizationScreen(
 
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = item.title,
+                                    text = stringResource(item.title),
                                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                                     color = primaryTextColor
                                 )
                                 if (isTop7) {
                                     Text(
-                                        "Tampil di Dashboard",
+                                        text = stringResource(R.string.dashboard_menu_appears_on_the_dashboard),
                                         style = MaterialTheme.typography.labelSmall,
                                         color = BrandPrimary
                                     )
@@ -153,7 +155,7 @@ fun MenuCustomizationScreen(
                                 modifier = Modifier.padding(vertical = 8.dp)
                             )
                             Text(
-                                text = "--- Menu di bawah ini masuk ke 'Lainnya' ---",
+                                text = stringResource(R.string.dashboard_menu_the_menu_below_goes_to_other),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = secondaryTextColor,
                                 modifier = Modifier

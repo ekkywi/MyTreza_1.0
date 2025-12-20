@@ -20,11 +20,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.trezanix.mytreza.R
 import com.trezanix.mytreza.ui.theme.SurfaceColor
 
 data class AtomicAction(
@@ -42,30 +44,50 @@ fun AtomicBottomSheetContent(
 ) {
     val context = LocalContext.current
 
-    fun showComingSoon(feature: String) {
-        Toast.makeText(context, "Fitur $feature akan segera hadir!", Toast.LENGTH_SHORT).show()
+    fun showComingSoon(featureName: String) {
+        val message = context.getString(R.string.fab_sheet_coming_soon, featureName)
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         onDismiss()
     }
 
     val actions = listOf(
-        AtomicAction("Scan", Icons.Default.QrCodeScanner, Color(0xFF2196F3)) { showComingSoon("Scan") },
-        AtomicAction("Transaksi", Icons.Default.ReceiptLong, Color(0xFF4CAF50)) {
-            onDismiss()
-            onTransactionClick()
+        AtomicAction(stringResource(R.string.action_scan), Icons.Default.QrCodeScanner, Color(0xFF2196F3)) {
+            showComingSoon(context.getString(R.string.action_scan))
         },
-        AtomicAction("Pindah", Icons.Default.SyncAlt, Color(0xFFFF9800)) { showComingSoon("Pindah") },
-        AtomicAction("Dompet", Icons.Default.AccountBalanceWallet, Color(0xFF9C27B0)) {
+        AtomicAction(stringResource(R.string.action_transaction), Icons.Default.ReceiptLong, Color(0xFF4CAF50)) {
+            showComingSoon(context.getString(R.string.action_transaction))
+        },
+        AtomicAction(stringResource(R.string.action_transfer), Icons.Default.SyncAlt, Color(0xFFFF9800)) {
+            showComingSoon(context.getString(R.string.action_transfer))
+        },
+        AtomicAction(stringResource(R.string.action_wallet), Icons.Default.AccountBalanceWallet, Color(0xFF9C27B0)) {
             onDismiss()
             onWalletClick()
         },
-        AtomicAction("Budget", Icons.Default.Savings, Color(0xFF00BCD4)) { showComingSoon("Budget") },
-        AtomicAction("Tagihan", Icons.Default.Event, Color(0xFF673AB7)) { showComingSoon("Tagihan") },
-        AtomicAction("Goals", Icons.Default.Flag, Color(0xFFFF5722)) { showComingSoon("Goals") },
-        AtomicAction("Utang", Icons.Default.MoneyOff, Color(0xFFF44336)) { showComingSoon("Utang") },
-        AtomicAction("Saham", Icons.Default.ShowChart, Color(0xFF3F51B5)) { showComingSoon("Saham") },
-        AtomicAction("Emas", Icons.Default.Stars, Color(0xFFFFC107)) { showComingSoon("Emas") },
-        AtomicAction("Kripto", Icons.Default.CurrencyBitcoin, Color(0xFF607D8B)) { showComingSoon("Kripto") },
-        AtomicAction("Proteksi", Icons.Default.Shield, Color(0xFF009688)) { showComingSoon("Asuransi") }
+        AtomicAction(stringResource(R.string.action_budget), Icons.Default.Savings, Color(0xFF00BCD4)) {
+            showComingSoon(context.getString(R.string.action_budget))
+        },
+        AtomicAction(stringResource(R.string.action_bills), Icons.Default.Event, Color(0xFF673AB7)) {
+            showComingSoon(context.getString(R.string.action_bills))
+        },
+        AtomicAction(stringResource(R.string.action_goals), Icons.Default.Flag, Color(0xFFFF5722)) {
+            showComingSoon(context.getString(R.string.action_goals))
+        },
+        AtomicAction(stringResource(R.string.action_debt), Icons.Default.MoneyOff, Color(0xFFF44336)) {
+            showComingSoon(context.getString(R.string.action_debt))
+        },
+        AtomicAction(stringResource(R.string.action_stock), Icons.Default.ShowChart, Color(0xFF3F51B5)) {
+            showComingSoon(context.getString(R.string.action_stock))
+        },
+        AtomicAction(stringResource(R.string.action_gold), Icons.Default.Stars, Color(0xFFFFC107)) {
+            showComingSoon(context.getString(R.string.action_gold))
+        },
+        AtomicAction(stringResource(R.string.action_crypto), Icons.Default.CurrencyBitcoin, Color(0xFF607D8B)) {
+            showComingSoon(context.getString(R.string.action_crypto))
+        },
+        AtomicAction(stringResource(R.string.action_protection), Icons.Default.Shield, Color(0xFF009688)) {
+            showComingSoon(context.getString(R.string.action_protection))
+        }
     )
 
     Column(
@@ -75,30 +97,17 @@ fun AtomicBottomSheetContent(
             .padding(bottom = 48.dp)
             .navigationBarsPadding()
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 12.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .width(40.dp)
-                    .height(4.dp)
-                    .clip(RoundedCornerShape(2.dp))
-                    .background(Color.LightGray.copy(alpha = 0.5f))
-            )
-        }
+        Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Tambah Data Baru",
+            text = stringResource(R.string.fab_sheet_title),
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp)
         )
 
         Text(
-            text = "Pilih kategori aktivitas yang ingin dicatat",
+            text = stringResource(R.string.fab_sheet_subtitle),
             style = MaterialTheme.typography.bodySmall,
             color = Color.Gray,
             modifier = Modifier.padding(horizontal = 24.dp).padding(bottom = 16.dp)

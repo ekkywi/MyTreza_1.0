@@ -17,10 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.trezanix.mytreza.R
 import java.text.NumberFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -82,13 +84,13 @@ fun TransactionHistory() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Transaksi Terkini",
+                text = stringResource(R.string.dashboard_transaction_latest_transactions),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 color = Color.Black
             )
             TextButton(onClick = { /* Navigate to Full History */ }) {
                 Text(
-                    text = "Lihat Semua",
+                    text = stringResource(R.string.dashboard_transaction_see_all),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary
                 )

@@ -99,8 +99,8 @@ fun getMockPortfolios(): List<AssetPortfolio> {
             isPositive = true,
             allocations = listOf(
                 AssetAllocation("Cash", 0.1f, Color(0xFF00E676)),
-                AssetAllocation("Saham", 0.4f, Color(0xFFE53935)),
-                AssetAllocation("Emas", 0.2f, Color(0xFFFFD700)),
+                AssetAllocation("Stock", 0.4f, Color(0xFFE53935)),
+                AssetAllocation("Gold", 0.2f, Color(0xFFFFD700)),
                 AssetAllocation("Crypto", 0.3f, Color(0xFFBB86FC))
             )
         ),
@@ -123,7 +123,7 @@ fun getMockPortfolios(): List<AssetPortfolio> {
         // 3. SAHAM
         AssetPortfolio(
             type = AssetType.STOCK,
-            title = "Portofolio Saham",
+            title = "Stock Portofolio",
             totalValue = "5.200.000.000",
             currencyCode = "IDR",
             growthPercent = "1.8%",
@@ -138,7 +138,7 @@ fun getMockPortfolios(): List<AssetPortfolio> {
         // 4. EMAS
         AssetPortfolio(
             type = AssetType.GOLD,
-            title = "Emas & Logam Mulia",
+            title = "Gold & Precious Metals",
             totalValue = "2.500.000.000",
             currencyCode = "IDR",
             growthPercent = "0.2%",
@@ -152,7 +152,7 @@ fun getMockPortfolios(): List<AssetPortfolio> {
 
         AssetPortfolio(
             type = AssetType.CRYPTO,
-            title = "Aset Kripto",
+            title = "Crypto Asset",
             totalValue = "1.25",
             currencyCode = "BTC",
             growthPercent = "5.4%",

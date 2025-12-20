@@ -1,6 +1,5 @@
 package com.trezanix.mytreza.ui.features.dashboard.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -12,13 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.trezanix.mytreza.ui.theme.BrandPrimary
+import androidx.compose.ui.res.stringResource
+import com.trezanix.mytreza.ui.common.getGreetingResourceId
+
 
 @Composable
 fun DashboardHeader() {
@@ -31,7 +30,7 @@ fun DashboardHeader() {
     ) {
         Column {
             Text(
-                text = "Selamat Pagi,",
+                text = stringResource(id = getGreetingResourceId()),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -57,7 +56,7 @@ fun DashboardHeader() {
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Notifications,
-                    contentDescription = "Notifikasi",
+                    contentDescription = "Notification",
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
@@ -69,7 +68,7 @@ fun DashboardHeader() {
                     .background(BrandPrimary.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
-                Text("ST", fontWeight = FontWeight.Bold, color = BrandPrimary)
+                Text("TD", fontWeight = FontWeight.Bold, color = BrandPrimary)
             }
         }
     }

@@ -42,4 +42,54 @@
     <string name="forgot_button_back">Kembali Masuk</string>
     <string name="forgot_footer_question">Eh, sudah ingat? </string>
     <string name="forgot_footer_action">Masuk Saja</string>
+
+    <!--Dashboard Screen-->
+    <string name="dashboard_greeting_morning">Selamat Pagi,</string>
+    <string name="dashboard_greeting_afternoon">Selamat Siang,</string>
+    <string name="dashboard_greeting_evening">Selamat Sore,</string>
+    <string name="dashboard_greeting_night">Selamat Malam,</string>
+    <string name="dashboard_menu_all_features">Semua Fitur</string>
+    <string name="dashboard_menu_set">Atur</string>
+    <string name="dashboard_menu_transaction">Transaksi</string>
+    <string name="dashboard_menu_scan">Pindai</string>
+    <string name="dashboard_menu_transfer_funds">Pindah Dana</string>
+    <string name="dashboard_menu_wallet">Dompet</string>
+    <string name="dashboard_menu_analysis">Analisis</string>
+    <string name="dashboard_menu_budget">Anggaran</string>
+    <string name="dashboard_menu_bill">Tagihat</string>
+    <string name="dashboard_menu_history">Riwayat</string>
+    <string name="dashboard_menu_goals">Tujuan</string>
+    <string name="dashboard_menu_stock">Saham</string>
+    <string name="dashboard_menu_gold">Emas</string>
+    <string name="dashboard_menu_crypto">Kripto</string>
+    <string name="dashboard_menu_debt">Hutang</string>
+    <string name="dashboard_menu_protection">Proteksi</string>
+    <string name="dashboard_menu_tools">Peralatan</string>
+    <string name="dashboard_menu_other">Lainnya</string>
+    <string name="dashboard_toast_coming_soon">Fitur %1$s akan segera hadir!</string>
+    <string name="dashboard_transaction_latest_transactions">Transaksi Terbaru</string>
+    <string name="dashboard_transaction_see_all">Lihat Semua</string>
+    <string name="dashboard_menu_set_dashboard_menu">Atur Menu Dashboard</string>
+    <string name="dashboard_menu_save">Simpan</string>
+    <string name="dashboard_menu_top_priority_menu">7 Menu teratas akan muncul di halaman utama. Gunakan panah untuk mengatur prioritas.</string>
+    <string name="dashboard_menu_appears_on_the_dashboard">Tampil di Dashboard</string>
+    <string name="dashboard_menu_the_menu_below_goes_to_other">--- Menu di bawah ini masuk ke \'Lainnya\' ---</string>
+
+    <!--Floating Action Button-->
+    <string name="fab_sheet_title">Tambah Data Baru</string>
+    <string name="fab_sheet_subtitle">Pilih kategori aktivitas yang ingin dicatat</string>
+    <string name="fab_sheet_coming_soon">Fitur %1$s akan segera hadir!</string>
+    <string name="action_scan">PIndai</string>
+    <string name="action_transaction">Transaksi</string>
+    <string name="action_transfer">Pindah Dana</string>
+    <string name="action_wallet">Dompet</string>
+    <string name="action_budget">Anggaran</string>
+    <string name="action_bills">Tagihan</string>
+    <string name="action_goals">Tujuan</string>
+    <string name="action_debt">Utang</string>
+    <string name="action_stock">Saham</string>
+    <string name="action_gold">Emas</string>
+    <string name="action_crypto">Kripto</string>
+    <string name="action_protection">Proteksi</string>
+
 </resources>

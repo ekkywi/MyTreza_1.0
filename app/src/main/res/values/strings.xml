@@ -42,4 +42,52 @@
     <string name="forgot_footer_question">"Wait, I remember! "</string>
     <string name="forgot_footer_action">Log In Now</string>
 
+    <!--Dashboard Screen-->
+    <string name="dashboard_greeting_morning">Good Morning,</string>
+    <string name="dashboard_greeting_afternoon">Good Afternoon,</string>
+    <string name="dashboard_greeting_evening">Good Evening,</string>
+    <string name="dashboard_greeting_night">Good Night,</string>
+    <string name="dashboard_menu_all_features">All Features</string>
+    <string name="dashboard_menu_set">Set</string>
+    <string name="dashboard_menu_transaction">Transaction</string>
+    <string name="dashboard_menu_scan">Scan</string>
+    <string name="dashboard_menu_transfer_funds">Transfer Funds</string>
+    <string name="dashboard_menu_wallet">Wallet</string>
+    <string name="dashboard_menu_analysis">Analysis</string>
+    <string name="dashboard_menu_budget">Budget</string>
+    <string name="dashboard_menu_bill">Bill</string>
+    <string name="dashboard_menu_history">History</string>
+    <string name="dashboard_menu_goals">Goals</string>
+    <string name="dashboard_menu_stock">Stock</string>
+    <string name="dashboard_menu_gold">Gold</string>
+    <string name="dashboard_menu_crypto">Crypto</string>
+    <string name="dashboard_menu_debt">Debt</string>
+    <string name="dashboard_menu_protection">Protection</string>
+    <string name="dashboard_menu_tools">Tools</string>
+    <string name="dashboard_menu_other">Other</string>
+    <string name="dashboard_toast_coming_soon">%1$s feature is coming soon!</string>
+    <string name="dashboard_transaction_latest_transactions">Latest Transactions</string>
+    <string name="dashboard_transaction_see_all">See All</string>
+    <string name="dashboard_menu_set_dashboard_menu">Set Dashboard Menu</string>
+    <string name="dashboard_menu_save">Save</string>
+    <string name="dashboard_menu_top_priority_menu">7 Top menu will appear on the main page. Use the arrows to set priorities.</string>
+    <string name="dashboard_menu_appears_on_the_dashboard">Appears on the Dashboard</string>
+    <string name="dashboard_menu_the_menu_below_goes_to_other">--- The menu below goes to \'Other\' ---</string>
+
+    <!--Floating Action Button-->
+    <string name="fab_sheet_title">Add New Data</string>
+    <string name="fab_sheet_subtitle">Select the activity category you want to log</string>
+    <string name="fab_sheet_coming_soon">%1$s feature is coming soon!</string>
+    <string name="action_scan">Scan</string>
+    <string name="action_transaction">Transaction</string>
+    <string name="action_transfer">Transfer Funds</string>
+    <string name="action_wallet">Wallet</string>
+    <string name="action_budget">Budget</string>
+    <string name="action_bills">Bill</string>
+    <string name="action_goals">History</string>
+    <string name="action_debt">Debt</string>
+    <string name="action_stock">Stock</string>
+    <string name="action_gold">Gold</string>
+    <string name="action_crypto">Crypto</string>
+    <string name="action_protection">Protection</string>
 </resources>
