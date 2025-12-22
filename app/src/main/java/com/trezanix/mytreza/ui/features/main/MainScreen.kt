@@ -37,8 +37,8 @@ import com.trezanix.mytreza.ui.theme.*
 // ✅ 1. Definisi State Navigasi Wallet (Harus ada di sini)
 sealed class WalletNavState {
     object List : WalletNavState()
-    data class Detail(val id: Int) : WalletNavState()
-    data class Form(val id: Int? = null) : WalletNavState() // id null = Add, id ada = Edit
+    data class Detail(val id: String) : WalletNavState()
+    data class Form(val id: String? = null) : WalletNavState() // id null = Add, id ada = Edit
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

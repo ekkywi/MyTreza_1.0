@@ -29,7 +29,7 @@ import com.trezanix.mytreza.ui.theme.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WalletDetailScreen(
-    walletId: Int,
+    walletId: String,
     onBackClick: () -> Unit,
     onEditClick: () -> Unit,
     onArchiveClick: () -> Unit,
