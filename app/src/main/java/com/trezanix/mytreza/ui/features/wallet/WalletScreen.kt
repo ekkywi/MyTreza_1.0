@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
@@ -30,6 +31,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.trezanix.mytreza.ui.theme.*
 import java.text.NumberFormat
 import java.util.Locale
@@ -52,9 +57,10 @@ data class WalletModel(
 @Composable
 fun WalletScreen(
     onWalletClick: (String) -> Unit = {},
-    onAddWalletClick: () -> Unit = {}
+    onAddWalletClick: () -> Unit = {},
+    viewModel: WalletViewModel = hiltViewModel()
 ) {
-    val wallets = remember { getDummyWallets() }
+    val wallets by viewModel.walletListState.collectAsState()
     val totalBalance = wallets.sumOf { it.balance }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -75,6 +81,17 @@ fun WalletScreen(
                     color = TextPrimary
                 )
             }
+
+            if (wallets.isEmpty()) {
+                item {
+                    Text(
+                        text = "Belum ada dompet. Tambah sekarang!",
+                        modifier = Modifier.padding(24.dp),
+                        color = TextHint
+                    )
+                }
+            }
+
             items(wallets) { wallet ->
                 Box(modifier = Modifier
                     .padding(horizontal = 24.dp)
@@ -221,7 +238,7 @@ fun WalletCardItem(wallet: WalletModel, showMenu: Boolean = false) {
                 // --- BARIS 2: EMV CHIP ---
                 Spacer(modifier = Modifier.height(18.dp))
                 // Logika Chip: Emas jika Shared/Savings
-                val useGoldChip = wallet.isShared || wallet.type == "Savings"
+                val useGoldChip = wallet.isShared || wallet.type == "Savings" || wallet.type == "Investment"
                 EmvChip(isGold = useGoldChip)
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -381,13 +398,4 @@ fun Modifier.rotate(degrees: Float) = this.then(Modifier.graphicsLayer(rotationZ
 fun formatRupiah(amount: Double): String {
     val format = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
     return format.format(amount).replace("Rp", "Rp ").substringBefore(",00")
-}
-
-// ✅ DUMMY DATA (UPDATED)
-fun getDummyWallets(): List<WalletModel> {
-    return listOf(
-        WalletModel(java.util.UUID.randomUUID().toString(), "Main Cash", "Tunai", 1500000.0, Brush.linearGradient(listOf(Color(0xFF43A047), Color(0xFF1B5E20))), false, "IDR", "01/24"),
-        WalletModel(java.util.UUID.randomUUID().toString(), "Bank BCA", "Bank", 12500000.0, Brush.linearGradient(listOf(Color(0xFF1E88E5), Color(0xFF0D47A1))), false, "IDR", "05/22"),
-        WalletModel(java.util.UUID.randomUUID().toString(), "Tabungan Nikah", "Savings", 50000000.0, Brush.linearGradient(listOf(Color(0xFFFB8C00), Color(0xFFE65100))), true, "IDR", "12/23")
-    )
 }

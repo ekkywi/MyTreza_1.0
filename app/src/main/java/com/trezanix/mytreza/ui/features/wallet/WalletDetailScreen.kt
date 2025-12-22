@@ -9,10 +9,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel // ✅ PENTING
 import com.trezanix.mytreza.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,9 +35,62 @@ fun WalletDetailScreen(
     onEditClick: () -> Unit,
     onArchiveClick: () -> Unit,
     onDeleteClick: () -> Unit,
-    onSeeAllClick: () -> Unit
+    onSeeAllClick: () -> Unit,
+    viewModel: WalletViewModel = hiltViewModel() // ✅ Inject ViewModel
 ) {
-    val wallet = remember { getDummyWallets().find { it.id == walletId } ?: getDummyWallets()[0] }
+    // 1. Panggil data dari Database berdasarkan ID saat layar dibuka
+    LaunchedEffect(walletId) {
+        viewModel.loadWalletById(walletId)
+    }
+
+    // 2. Observe data dari ViewModel
+    val walletEntity by viewModel.currentWallet.collectAsState()
+
+    // 3. Konversi Entity (Database) ke UI Model
+    // Kita butuh list warna yang sama dengan di WalletFormScreen
+    val gradients = listOf(
+        Brush.linearGradient(listOf(Color(0xFF43A047), Color(0xFF1B5E20))),
+        Brush.linearGradient(listOf(Color(0xFF66BB6A), Color(0xFF33691E))),
+        Brush.linearGradient(listOf(Color(0xFF009688), Color(0xFF004D40))),
+        Brush.linearGradient(listOf(Color(0xFF1E88E5), Color(0xFF0D47A1))),
+        Brush.linearGradient(listOf(Color(0xFF039BE5), Color(0xFF01579B))),
+        Brush.linearGradient(listOf(Color(0xFF42A5F5), Color(0xFF1565C0))),
+        Brush.linearGradient(listOf(Color(0xFF3949AB), Color(0xFF1A237E))),
+        Brush.linearGradient(listOf(Color(0xFFFB8C00), Color(0xFFE65100))),
+        Brush.linearGradient(listOf(Color(0xFFE53935), Color(0xFFB71C1C))),
+        Brush.linearGradient(listOf(Color(0xFFFF7043), Color(0xFFBF360C))),
+        Brush.linearGradient(listOf(Color(0xFFFFCA28), Color(0xFFFF6F00))),
+        Brush.linearGradient(listOf(Color(0xFF8E24AA), Color(0xFF4A148C))),
+        Brush.linearGradient(listOf(Color(0xFFBA68C8), Color(0xFF6A1B9A))),
+        Brush.linearGradient(listOf(Color(0xFFEC407A), Color(0xFF880E4F))),
+        Brush.linearGradient(listOf(Color(0xFF795548), Color(0xFF3E2723))),
+        Brush.linearGradient(listOf(Color(0xFF78909C), Color(0xFF37474F))),
+        Brush.linearGradient(listOf(Color(0xFF424242), Color(0xFF212121))),
+        Brush.linearGradient(listOf(Color(0xFF546E7A), Color(0xFF263238)))
+    )
+
+    // Jika data belum siap (loading), tampilkan layar kosong/loading
+    if (walletEntity == null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(color = BrandPrimary)
+        }
+        return
+    }
+
+    // Data siap ditampilkan
+    val wallet = walletEntity!!.let {
+        WalletModel(
+            id = it.id,
+            name = it.name,
+            type = it.type,
+            balance = it.balance,
+            isShared = it.isShared,
+            currency = it.currency,
+            createdAt = it.createdAt,
+            // Ambil warna berdasarkan index yang disimpan di DB
+            gradient = if (it.colorIndex in gradients.indices) gradients[it.colorIndex] else gradients[0]
+        )
+    }
 
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showArchiveDialog by remember { mutableStateOf(false) }
@@ -51,6 +105,7 @@ fun WalletDetailScreen(
         ) {
             item {
                 Box(modifier = Modifier.padding(horizontal = 24.dp)) {
+                    // Tampilkan Data Asli
                     WalletCardItem(wallet = wallet, showMenu = false)
                 }
             }
@@ -101,6 +156,7 @@ fun WalletDetailScreen(
             }
         }
 
+        // --- HEADER ---
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -134,10 +190,11 @@ fun WalletDetailScreen(
             )
         }
 
+        // --- DIALOGS ---
         if (showArchiveDialog) {
             TrezaAlertDialog(
                 title = "Arsipkan Dompet?",
-                text = "Dompet ini akan disembunyikan dari total saldo, tapi riwayat transaksi tetap tersimpan.",
+                text = "Dompet ini akan disembunyikan dari total saldo.",
                 confirmText = "Arsipkan",
                 dismissText = "Batal",
                 icon = Icons.Outlined.Archive,
@@ -153,13 +210,15 @@ fun WalletDetailScreen(
         if (showDeleteDialog) {
             TrezaAlertDialog(
                 title = "Hapus Dompet?",
-                text = "Tindakan ini permanen. Semua riwayat transaksi di dompet ini akan hilang selamanya.",
+                text = "Tindakan ini permanen. Data akan hilang dari database.",
                 confirmText = "Hapus Permanen",
                 dismissText = "Batal",
                 icon = Icons.Outlined.Delete,
                 confirmColor = Color(0xFFD32F2F),
                 onConfirm = {
-                    onDeleteClick()
+                    // ✅ HAPUS DATA DARI DATABASE
+                    viewModel.deleteWallet(walletId)
+                    onDeleteClick() // Navigasi kembali ke list
                     showDeleteDialog = false
                 },
                 onDismiss = { showDeleteDialog = false }

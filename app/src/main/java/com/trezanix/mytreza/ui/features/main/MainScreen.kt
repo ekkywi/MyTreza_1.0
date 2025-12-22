@@ -31,14 +31,14 @@ import com.trezanix.mytreza.ui.features.main.components.AtomicBottomSheetContent
 import com.trezanix.mytreza.ui.features.profile.ProfileScreen
 import com.trezanix.mytreza.ui.features.wallet.WalletScreen
 import com.trezanix.mytreza.ui.features.wallet.WalletDetailScreen
-import com.trezanix.mytreza.ui.features.wallet.WalletFormScreen // ✅ Import Form
+import com.trezanix.mytreza.ui.features.wallet.WalletFormScreen
 import com.trezanix.mytreza.ui.theme.*
 
-// ✅ 1. Definisi State Navigasi Wallet (Harus ada di sini)
+// 1. Definisi State Navigasi Wallet
 sealed class WalletNavState {
     object List : WalletNavState()
     data class Detail(val id: String) : WalletNavState()
-    data class Form(val id: String? = null) : WalletNavState() // id null = Add, id ada = Edit
+    data class Form(val id: String? = null) : WalletNavState()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,8 +46,12 @@ sealed class WalletNavState {
 fun MainScreen() {
     var currentScreen by remember { mutableStateOf<BottomNavItem>(BottomNavItem.Dashboard) }
 
-    // ✅ 2. State Baru (Pengganti selectedWalletId)
+    // 2. State Wallet
     var walletNavState by remember { mutableStateOf<WalletNavState>(WalletNavState.List) }
+
+    // 👇 LOGIKA UTAMA: Tampilkan Nav Bar HANYA jika di List
+    // (Tambahan: Pastikan juga tampil jika sedang BUKAN di tab wallet, misal Dashboard)
+    val showBottomBarAndFab = (currentScreen != BottomNavItem.Wallet) || (walletNavState is WalletNavState.List)
 
     var showAddSheet by remember { mutableStateOf(false) }
 
@@ -83,15 +87,14 @@ fun MainScreen() {
         ), label = "Scale2"
     )
 
-    // ✅ 3. BackHandler yang Diperbarui
-    // Jika sedang di Wallet Detail/Form, tombol back akan mengembalikan ke List Wallet dulu
+    // 3. BackHandler
     BackHandler(enabled = showAddSheet || (currentScreen == BottomNavItem.Wallet && walletNavState !is WalletNavState.List) || currentScreen != BottomNavItem.Dashboard) {
         when {
             showAddSheet -> showAddSheet = false
             currentScreen == BottomNavItem.Wallet && walletNavState !is WalletNavState.List -> {
-                walletNavState = WalletNavState.List // Balik ke list wallet
+                walletNavState = WalletNavState.List
             }
-            else -> currentScreen = BottomNavItem.Dashboard // Balik ke dashboard
+            else -> currentScreen = BottomNavItem.Dashboard
         }
     }
 
@@ -125,78 +128,85 @@ fun MainScreen() {
 
         Scaffold(
             containerColor = Color.Transparent,
+            // 👇 PERBAIKAN 1: Bungkus bottomBar dengan kondisi if
             bottomBar = {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .navigationBarsPadding()
-                        .padding(horizontal = 24.dp, vertical = 24.dp),
-                    contentAlignment = Alignment.BottomCenter
-                ) {
-                    Card(
+                if (showBottomBarAndFab) {
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(80.dp)
-                            .align(Alignment.BottomCenter)
-                            .border(
-                                width = 1.dp,
-                                brush = Brush.verticalGradient(
-                                    colors = listOf(Color.White.copy(alpha = 0.7f), Color.White.copy(alpha = 0.1f))
-                                ),
-                                shape = RoundedCornerShape(24.dp)
-                            ),
-                        shape = RoundedCornerShape(24.dp),
-                        colors = CardDefaults.cardColors(containerColor = SurfaceColor.copy(alpha = 0.90f)),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+                            .navigationBarsPadding() // Penting agar tidak tertutup gesture bar HP
+                            .padding(horizontal = 24.dp, vertical = 24.dp),
+                        contentAlignment = Alignment.BottomCenter
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceEvenly
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(80.dp)
+                                .align(Alignment.BottomCenter)
+                                .border(
+                                    width = 1.dp,
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(Color.White.copy(alpha = 0.7f), Color.White.copy(alpha = 0.1f))
+                                    ),
+                                    shape = RoundedCornerShape(24.dp)
+                                ),
+                            shape = RoundedCornerShape(24.dp),
+                            colors = CardDefaults.cardColors(containerColor = SurfaceColor.copy(alpha = 0.90f)),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
                         ) {
-                            GlassNavItem(BottomNavItem.Dashboard, currentScreen == BottomNavItem.Dashboard) {
-                                currentScreen = BottomNavItem.Dashboard
-                                walletNavState = WalletNavState.List
-                            }
-                            GlassNavItem(BottomNavItem.Analysis, currentScreen == BottomNavItem.Analysis) {
-                                currentScreen = BottomNavItem.Analysis
-                            }
+                            Row(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                GlassNavItem(BottomNavItem.Dashboard, currentScreen == BottomNavItem.Dashboard) {
+                                    currentScreen = BottomNavItem.Dashboard
+                                    walletNavState = WalletNavState.List
+                                }
+                                GlassNavItem(BottomNavItem.Analysis, currentScreen == BottomNavItem.Analysis) {
+                                    currentScreen = BottomNavItem.Analysis
+                                }
 
-                            Spacer(modifier = Modifier.width(60.dp))
+                                Spacer(modifier = Modifier.width(60.dp))
 
-                            GlassNavItem(BottomNavItem.Wallet, currentScreen == BottomNavItem.Wallet) {
-                                // Jika klik tab Wallet, reset state ke List
-                                currentScreen = BottomNavItem.Wallet
-                                walletNavState = WalletNavState.List
-                            }
-                            GlassNavItem(BottomNavItem.Profile, currentScreen == BottomNavItem.Profile) {
-                                currentScreen = BottomNavItem.Profile
+                                GlassNavItem(BottomNavItem.Wallet, currentScreen == BottomNavItem.Wallet) {
+                                    currentScreen = BottomNavItem.Wallet
+                                    walletNavState = WalletNavState.List
+                                }
+                                GlassNavItem(BottomNavItem.Profile, currentScreen == BottomNavItem.Profile) {
+                                    currentScreen = BottomNavItem.Profile
+                                }
                             }
                         }
-                    }
 
-                    // --- FAB ADD ---
-                    val fabShape = RoundedCornerShape(20.dp)
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .offset(y = (-10).dp)
-                            .size(60.dp)
-                            .shadow(elevation = 10.dp, shape = fabShape, spotColor = BrandPrimary)
-                            .border(width = 4.dp, color = SurfaceColor.copy(alpha = 0.5f), shape = fabShape)
-                            .background(brush = BrandGradient, shape = fabShape)
-                            .clip(fabShape)
-                            .clickable { showAddSheet = true }
-                    ) {
-                        Icon(Icons.Default.Add, "Add Transaction", tint = Color.White, modifier = Modifier.size(32.dp))
+                        // --- FAB ADD ---
+                        val fabShape = RoundedCornerShape(20.dp)
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .offset(y = (-10).dp)
+                                .size(60.dp)
+                                .shadow(elevation = 10.dp, shape = fabShape, spotColor = BrandPrimary)
+                                .border(width = 4.dp, color = SurfaceColor.copy(alpha = 0.5f), shape = fabShape)
+                                .background(brush = BrandGradient, shape = fabShape)
+                                .clip(fabShape)
+                                .clickable { showAddSheet = true }
+                        ) {
+                            Icon(Icons.Default.Add, "Add Transaction", tint = Color.White, modifier = Modifier.size(32.dp))
+                        }
                     }
                 }
             }
         ) { innerPadding ->
 
+            // 👇 PERBAIKAN 2: Padding Bawah Dinamis
+            // Jika Nav Bar muncul, padding bawah 100.dp (biar konten ga ketutup).
+            // Jika Nav Bar hilang (Form), padding bawah 0.dp (biar full screen).
+            val bottomPadding = if (showBottomBarAndFab) 100.dp else 0.dp
+
             Box(
                 modifier = Modifier
-                    .padding(top = innerPadding.calculateTopPadding(), bottom = 100.dp)
+                    .padding(top = innerPadding.calculateTopPadding(), bottom = bottomPadding)
                     .fillMaxSize()
             ) {
                 Crossfade(
@@ -207,14 +217,13 @@ fun MainScreen() {
                     when (targetState) {
                         BottomNavItem.Dashboard -> DashboardScreen(
                             onNavigateToWallet = {
-                                // Navigasi dari Dashboard Menu -> Wallet
                                 currentScreen = BottomNavItem.Wallet
                                 walletNavState = WalletNavState.List
                             }
                         )
                         BottomNavItem.Analysis -> AnalysisScreen()
 
-                        // ✅ 4. Logika Navigasi Wallet yang Baru
+                        // 4. Logika Navigasi Wallet
                         BottomNavItem.Wallet -> {
                             Crossfade(targetState = walletNavState, label = "WalletNavTransition") { state ->
                                 when (state) {
@@ -231,14 +240,13 @@ fun MainScreen() {
                                             onEditClick = { walletNavState = WalletNavState.Form(state.id) },
                                             onArchiveClick = { walletNavState = WalletNavState.List },
                                             onDeleteClick = { walletNavState = WalletNavState.List },
-                                            onSeeAllClick = { /* TODO: Lihat History Full */ }
+                                            onSeeAllClick = { /* TODO */ }
                                         )
                                     }
                                     is WalletNavState.Form -> {
                                         WalletFormScreen(
                                             walletId = state.id,
                                             onNavigateBack = {
-                                                // Jika Add (id null) balik ke List, Jika Edit balik ke Detail
                                                 if (state.id == null) walletNavState = WalletNavState.List
                                                 else walletNavState = WalletNavState.Detail(state.id)
                                             },
@@ -256,7 +264,7 @@ fun MainScreen() {
                 }
             }
 
-            // ✅ 5. BottomSheet dengan Callback Dompet
+            // 5. BottomSheet
             if (showAddSheet) {
                 ModalBottomSheet(
                     onDismissRequest = { showAddSheet = false },
@@ -266,16 +274,12 @@ fun MainScreen() {
                 ) {
                     AtomicBottomSheetContent(
                         onDismiss = { showAddSheet = false },
-
-                        // Callback saat menu Dompet diklik di Sheet
                         onWalletClick = {
                             showAddSheet = false
-                            currentScreen = BottomNavItem.Wallet // Pindah tab
-                            walletNavState = WalletNavState.Form(null) // Buka Form Tambah
+                            currentScreen = BottomNavItem.Wallet
+                            walletNavState = WalletNavState.Form(null)
                         },
-
                         onTransactionClick = {
-                            // TODO: Nanti arahkan ke Form Transaksi
                             showAddSheet = false
                         }
                     )

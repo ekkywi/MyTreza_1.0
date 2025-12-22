@@ -7,13 +7,14 @@ import java.util.UUID
 
 @Entity(tableName = "wallets")
 data class WalletEntity(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey(autoGenerate = false)
     val id: String = UUID.randomUUID().toString(),
     val name: String,
     val type: String,
     val balance: Double,
-    val color: Int,
     val currency: String = "IDR",
     val isShared: Boolean = false,
-    val ownerId: String = "SELF"
+    val ownerId: String = "SELF",
+    val createdAt: String = "01/24",
+    val colorIndex: Int = 0
 )
