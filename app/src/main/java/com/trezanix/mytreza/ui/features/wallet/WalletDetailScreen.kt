@@ -13,6 +13,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Unarchive
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,7 +25,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel // ✅ PENTING
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.trezanix.mytreza.R
 import com.trezanix.mytreza.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,18 +40,15 @@ fun WalletDetailScreen(
     onArchiveClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onSeeAllClick: () -> Unit,
-    viewModel: WalletViewModel = hiltViewModel() // ✅ Inject ViewModel
+    viewModel: WalletViewModel = hiltViewModel()
 ) {
-    // 1. Panggil data dari Database berdasarkan ID saat layar dibuka
+    val context = LocalContext.current
+
     LaunchedEffect(walletId) {
         viewModel.loadWalletById(walletId)
     }
 
-    // 2. Observe data dari ViewModel
     val walletEntity by viewModel.currentWallet.collectAsState()
-
-    // 3. Konversi Entity (Database) ke UI Model
-    // Kita butuh list warna yang sama dengan di WalletFormScreen
     val gradients = listOf(
         Brush.linearGradient(listOf(Color(0xFF43A047), Color(0xFF1B5E20))),
         Brush.linearGradient(listOf(Color(0xFF66BB6A), Color(0xFF33691E))),
@@ -69,7 +70,6 @@ fun WalletDetailScreen(
         Brush.linearGradient(listOf(Color(0xFF546E7A), Color(0xFF263238)))
     )
 
-    // Jika data belum siap (loading), tampilkan layar kosong/loading
     if (walletEntity == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(color = BrandPrimary)
@@ -77,7 +77,6 @@ fun WalletDetailScreen(
         return
     }
 
-    // Data siap ditampilkan
     val wallet = walletEntity!!.let {
         WalletModel(
             id = it.id,
@@ -87,13 +86,14 @@ fun WalletDetailScreen(
             isShared = it.isShared,
             currency = it.currency,
             createdAt = it.createdAt,
-            // Ambil warna berdasarkan index yang disimpan di DB
-            gradient = if (it.colorIndex in gradients.indices) gradients[it.colorIndex] else gradients[0]
+            gradient = if (it.colorIndex in gradients.indices) gradients[it.colorIndex] else gradients[0],
+            isArchived = it.isArchived
         )
     }
 
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showArchiveDialog by remember { mutableStateOf(false) }
+    var showRestoreDialog by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
@@ -105,7 +105,6 @@ fun WalletDetailScreen(
         ) {
             item {
                 Box(modifier = Modifier.padding(horizontal = 24.dp)) {
-                    // Tampilkan Data Asli
                     WalletCardItem(wallet = wallet, showMenu = false)
                 }
             }
@@ -113,8 +112,15 @@ fun WalletDetailScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 ActionButtons(
                     onEditClick = onEditClick,
-                    onArchiveClick = { showArchiveDialog = true },
-                    onDeleteClick = { showDeleteDialog = true }
+                    onArchiveClick = {
+                        if (wallet.isArchived) {
+                            showRestoreDialog = true
+                        } else {
+                            showArchiveDialog = true
+                        }
+                    },
+                    onDeleteClick = { showDeleteDialog = true },
+                    isArchived = wallet.isArchived
                 )
             }
             item {
@@ -131,12 +137,12 @@ fun WalletDetailScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Riwayat Transaksi",
+                        text = stringResource(R.string.wallet_detail_transaction_history),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = BrandDarkText
                     )
                     Text(
-                        text = "Lihat Semua",
+                        text = stringResource(R.string.wallet_detail_see_all),
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
                         color = BrandPrimary,
                         modifier = Modifier
@@ -156,7 +162,6 @@ fun WalletDetailScreen(
             }
         }
 
-        // --- HEADER ---
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -173,7 +178,7 @@ fun WalletDetailScreen(
                 )
         ) {
             CenterAlignedTopAppBar(
-                title = { Text("Detail Dompet", fontWeight = FontWeight.SemiBold) },
+                title = { Text(stringResource(R.string.wallet_detail_topbar), fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(
                         onClick = onBackClick,
@@ -190,18 +195,40 @@ fun WalletDetailScreen(
             )
         }
 
-        // --- DIALOGS ---
+        if (showRestoreDialog) {
+            TrezaAlertDialog(
+                title = stringResource(R.string.wallet_detail_recover_alert_title),
+                text = stringResource(R.string.wallet_detail_recover_alert_text),
+                confirmText = stringResource(R.string.wallet_detail_alert_confirmation_recover),
+                dismissText = stringResource(R.string.wallet_detail_alert_confirmation_cancel),
+                icon = Icons.Outlined.Unarchive,
+                confirmColor = Color(0xFF43A047),
+                onConfirm = {
+                    viewModel.unarchiveWallet(walletId)
+                    onArchiveClick()
+                    showRestoreDialog = false
+                },
+                onDismiss = { showRestoreDialog = false }
+            )
+        }
+
         if (showArchiveDialog) {
             TrezaAlertDialog(
-                title = "Arsipkan Dompet?",
-                text = "Dompet ini akan disembunyikan dari total saldo.",
-                confirmText = "Arsipkan",
-                dismissText = "Batal",
+                title = stringResource(R.string.wallet_detail_archive_alert_title),
+                text = stringResource(R.string.wallet_detail_archive_alert_text),
+                confirmText = stringResource(R.string.wallet_detail_alert_confirmation_archive),
+                dismissText = stringResource(R.string.wallet_detail_alert_confirmation_cancel),
                 icon = Icons.Outlined.Archive,
                 confirmColor = Color(0xFFFB8C00),
                 onConfirm = {
-                    onArchiveClick()
-                    showArchiveDialog = false
+                    val errorMessage  = viewModel.attemptArchiveWallet(walletId)
+
+                    if (errorMessage != null) {
+                        android.widget.Toast.makeText(context, errorMessage, android.widget.Toast.LENGTH_LONG).show()
+                    } else {
+                        onArchiveClick()
+                        showArchiveDialog = false
+                    }
                 },
                 onDismiss = { showArchiveDialog = false }
             )
@@ -209,17 +236,21 @@ fun WalletDetailScreen(
 
         if (showDeleteDialog) {
             TrezaAlertDialog(
-                title = "Hapus Dompet?",
-                text = "Tindakan ini permanen. Data akan hilang dari database.",
-                confirmText = "Hapus Permanen",
-                dismissText = "Batal",
+                title = stringResource(R.string.wallet_detail_delete_alert_title),
+                text = stringResource(R.string.wallet_detail_delete_alert_text),
+                confirmText = stringResource(R.string.wallet_detail_alert_confirmation_delete),
+                dismissText = stringResource(R.string.wallet_detail_alert_confirmation_cancel),
                 icon = Icons.Outlined.Delete,
                 confirmColor = Color(0xFFD32F2F),
                 onConfirm = {
-                    // ✅ HAPUS DATA DARI DATABASE
-                    viewModel.deleteWallet(walletId)
-                    onDeleteClick() // Navigasi kembali ke list
-                    showDeleteDialog = false
+                    val errorMessage = viewModel.attemptDeleteWallet(walletId)
+
+                    if (errorMessage != null) {
+                        android.widget.Toast.makeText(context, errorMessage, android.widget.Toast.LENGTH_LONG).show()
+                    } else {
+                        onDeleteClick()
+                        showDeleteDialog =false
+                    }
                 },
                 onDismiss = { showDeleteDialog = false }
             )
@@ -231,7 +262,8 @@ fun WalletDetailScreen(
 fun ActionButtons(
     onEditClick: () -> Unit,
     onArchiveClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    isArchived: Boolean
 ) {
     Row(
         modifier = Modifier
@@ -240,7 +272,7 @@ fun ActionButtons(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         ActionButtonItem(
-            text = "Edit",
+            text = stringResource(R.string.wallet_detail_button_edit),
             icon = Icons.Default.Edit,
             containerColor = SurfaceColor.copy(alpha = 0.8f),
             contentColor = BrandPrimary,
@@ -248,9 +280,10 @@ fun ActionButtons(
             onClick = onEditClick,
             modifier = Modifier.weight(1f)
         )
+
         ActionButtonItem(
-            text = "Arsip",
-            icon = Icons.Outlined.Archive,
+            text = if (isArchived) stringResource(R.string.wallet_detail_button_recover) else stringResource(R.string.wallet_detail_button_archives),
+            icon = if (isArchived) Icons.Outlined.Unarchive else Icons.Outlined.Archive,
             containerColor = Color(0xFFFFF3E0).copy(alpha = 0.8f),
             contentColor = Color(0xFFFB8C00),
             borderColor = Color(0xFFFB8C00).copy(alpha = 0.2f),
@@ -259,7 +292,7 @@ fun ActionButtons(
         )
 
         ActionButtonItem(
-            text = "Hapus",
+            text = stringResource(R.string.wallet_detail_button_delete),
             icon = Icons.Outlined.Delete,
             containerColor = Color(0xFFFFEBEE).copy(alpha = 0.8f),
             contentColor = Color(0xFFD32F2F),
@@ -346,14 +379,19 @@ fun TrezaAlertDialog(
 
 @Composable
 fun StatsCard() {
-    Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp), shape = RoundedCornerShape(24.dp), colors = CardDefaults.cardColors(containerColor = SurfaceColor.copy(alpha = 0.6f)), border = BorderStroke(1.dp, Color.White.copy(alpha = 0.4f))) {
+    Card(modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 24.dp), shape = RoundedCornerShape(24.dp), colors = CardDefaults.cardColors(containerColor = SurfaceColor.copy(alpha = 0.6f)), border = BorderStroke(1.dp, Color.White.copy(alpha = 0.4f))) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text("Bulan Ini", style = MaterialTheme.typography.labelLarge, color = TextHint)
                 Surface(color = Color(0xFFE8F5E9), shape = RoundedCornerShape(8.dp)) { Text("Sehat", modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), style = MaterialTheme.typography.labelSmall, color = Color(0xFF2E7D32)) }
             }
             Spacer(modifier = Modifier.height(12.dp))
-            LinearProgressIndicator(progress = { 0.4f }, modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)), color = BrandPrimary, trackColor = Color.White.copy(alpha = 0.5f))
+            LinearProgressIndicator(progress = { 0.4f }, modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+                .clip(RoundedCornerShape(4.dp)), color = BrandPrimary, trackColor = Color.White.copy(alpha = 0.5f))
             Spacer(modifier = Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                 Text("Keluar: Rp 2.5jt", style = MaterialTheme.typography.labelSmall, color = Color(0xFFE53935))
@@ -365,9 +403,14 @@ fun StatsCard() {
 
 @Composable
 fun GlassTransactionItem(title: String, amount: String, isExpense: Boolean) {
-    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 8.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(modifier = Modifier.size(48.dp).background(Color.White, CircleShape).border(1.dp, Color.Black.copy(0.05f), CircleShape), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier
+                .size(48.dp)
+                .background(Color.White, CircleShape)
+                .border(1.dp, Color.Black.copy(0.05f), CircleShape), contentAlignment = Alignment.Center) {
                 Icon(imageVector = if(isExpense) Icons.Default.ArrowOutward else Icons.Default.ArrowDownward, contentDescription = null, tint = if(isExpense) Color(0xFFE53935) else Color(0xFF4CAF50), modifier = Modifier.size(20.dp))
             }
             Spacer(modifier = Modifier.width(16.dp))

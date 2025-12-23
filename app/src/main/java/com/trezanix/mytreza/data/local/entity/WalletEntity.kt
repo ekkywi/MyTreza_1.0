@@ -15,6 +15,7 @@ data class WalletEntity(
     val currency: String = "IDR",
     val isShared: Boolean = false,
     val ownerId: String = "SELF",
-    val createdAt: String = "01/24",
-    val colorIndex: Int = 0
+    val createdAt: String,
+    val colorIndex: Int = 0,
+    val isArchived: Boolean = false
 )

@@ -92,4 +92,30 @@
     <string name="action_crypto">Kripto</string>
     <string name="action_protection">Proteksi</string>
 
+    <!--Wallet Screen-->
+    <string name="wallet_topbar">DompetKu</string>
+    <string name="wallet_wallet_list">Daftar Dompet</string>
+    <string name="wallet_no_wallet">Belum ada dompet. Tambahkan satu sekarang!</string>
+    <string name="wallet_total_worth">Total Kekayaan Bersih</string>
+    <string name="wallet_income">Pemasukan</string>
+    <string name="wallet_expense">Pengeluaran</string>
+
+    <!--Wallet Detail Screen-->
+    <string name="wallet_detail_topbar">Detail Dompet</string>
+    <string name="wallet_detail_button_edit">Edit</string>
+    <string name="wallet_detail_button_archives">Arsipkan</string>
+    <string name="wallet_detail_button_delete">Hapus</string>
+    <string name="wallet_detail_transaction_history">Riwayat Transaksi</string>
+    <string name="wallet_detail_see_all">Lihat Semua</string>
+    <string name="wallet_detail_button_recover">Pulihkan</string>
+    <string name="wallet_detail_delete_alert_title">Hapus Dompet?</string>
+    <string name="wallet_detail_delete_alert_text">Tindakan ini bersifat permanen. Data akan hilang dari database.</string>
+    <string name="wallet_detail_archive_alert_text">Dompet ini akan disembunyikan dari total saldo.</string>
+    <string name="wallet_detail_recover_alert_title">Pulihkan Dompet?</string>
+    <string name="wallet_detail_recover_alert_text">Dompet akan muncul kembali di halaman utama dan saldo akan dihitung kembali.</string>
+    <string name="wallet_detail_alert_confirmation_delete">Hapus</string>
+    <string name="wallet_detail_alert_confirmation_cancel">Batal</string>
+    <string name="wallet_detail_alert_confirmation_recover">Pulihkan</string>
+    <string name="wallet_detail_alert_confirmation_archive">Arsipkan</string>
+    <string name="wallet_detail_archive_alert_title">Arsipkan Dompet?</string>
 </resources>

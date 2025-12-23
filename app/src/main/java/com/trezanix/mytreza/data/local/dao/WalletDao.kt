@@ -24,4 +24,7 @@ interface WalletDao {
 
     @Query("UPDATE wallets SET balance= :newBalance WHERE id = :id")
     suspend fun updateBalance(id: String, newBalance: Double)
+
+    @Query("UPDATE wallets SET isArchived = :isArchived WHERE id = :id")
+    suspend fun updateArchivedStatus(id: String, isArchived: Boolean)
 }

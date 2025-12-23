@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @HiltViewModel
 class WalletViewModel @Inject constructor(
@@ -19,8 +22,21 @@ class WalletViewModel @Inject constructor(
 
     val walletListState: StateFlow<List<WalletModel>> = repository.getAllWallets()
         .map { entities ->
-            entities.map { it.toUiModel() }
+            entities
+                .filter{ !it.isArchived }
+                .map { it.toUiModel() }
         }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    val archivedWalletListState: StateFlow<List<WalletModel>> = repository.getAllWallets()
+        .map { entities ->
+            entities
+                .filter { it.isArchived }
+                .map { it.toUiModel() } }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -50,8 +66,13 @@ class WalletViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             val walletId = id ?: UUID.randomUUID().toString()
-            val createdAt = _currentWallet.value?.createdAt ?: "01/24" // TODO: Pakai Date Formatter asli nanti
-
+            val existingDate = _currentWallet.value?.createdAt
+            val finalDate = if (existingDate != null) {
+                existingDate
+            } else {
+                val formatter = SimpleDateFormat("MM/yy", Locale.getDefault())
+                formatter.format(Date())
+            }
             val newWallet = WalletEntity(
                 id = walletId,
                 name = name,
@@ -59,18 +80,52 @@ class WalletViewModel @Inject constructor(
                 balance = balance,
                 isShared = isShared,
                 currency = "IDR",
-                createdAt = createdAt,
-                colorIndex = colorIndex
-                // userId = "local_default" (Nanti pas ada Auth)
+                createdAt = finalDate,
+                colorIndex = colorIndex,
+                isArchived = _currentWallet.value?.isArchived ?: false
             )
-
             repository.insertWallet(newWallet)
         }
     }
 
-    fun deleteWallet(id: String) {
+    fun attemptDeleteWallet(id: String): String? {
+        val wallet = _currentWallet.value ?: return "Data not found"
+
+        if (wallet.balance > 0.0) {
+            return "Failed! Balance must be 0 before it is permanently deleted."
+        }
+
+        val hasTransaction = false
+        if (hasTransaction) {
+            return "Failed! This wallet has a transaction history. Please archive it."
+        }
+
+        performDelete(id)
+        return null
+    }
+
+    fun performDelete(id: String) {
         viewModelScope.launch {
             repository.deleteWalletById(id)
+        }
+    }
+
+    fun attemptArchiveWallet(id: String): String? {
+        val wallet = _currentWallet.value ?: return "Data error"
+
+        if (wallet.balance > 0.0) {
+            return "Balance must be 0 to archive wallet."
+        }
+
+        viewModelScope.launch {
+            repository.updateWalletArchived(id, true)
+        }
+        return null
+    }
+
+    fun unarchiveWallet(id: String) {
+        viewModelScope.launch {
+            repository.updateWalletArchived(id, false)
         }
     }
 }
@@ -84,30 +139,31 @@ fun WalletEntity.toUiModel(): WalletModel {
         isShared = this.isShared,
         currency = this.currency,
         createdAt = this.createdAt,
-        gradient = getGradientByIndex(this.colorIndex)
+        gradient = getGradientByIndex(this.colorIndex),
+        isArchived = this.isArchived
     )
 }
 
 fun getGradientByIndex(index: Int): Brush {
     val gradients = listOf(
-        Brush.linearGradient(listOf(Color(0xFF43A047), Color(0xFF1B5E20))), // 0. Green
-        Brush.linearGradient(listOf(Color(0xFF66BB6A), Color(0xFF33691E))), // 1. Light Green
-        Brush.linearGradient(listOf(Color(0xFF009688), Color(0xFF004D40))), // 2. Teal
-        Brush.linearGradient(listOf(Color(0xFF1E88E5), Color(0xFF0D47A1))), // 3. Blue (Trust)
-        Brush.linearGradient(listOf(Color(0xFF039BE5), Color(0xFF01579B))), // 4. Light Blue
-        Brush.linearGradient(listOf(Color(0xFF42A5F5), Color(0xFF1565C0))), // 5. Sky Blue
-        Brush.linearGradient(listOf(Color(0xFF3949AB), Color(0xFF1A237E))), // 6. Indigo
-        Brush.linearGradient(listOf(Color(0xFFFB8C00), Color(0xFFE65100))), // 7. Orange
-        Brush.linearGradient(listOf(Color(0xFFE53935), Color(0xFFB71C1C))), // 8. Red
-        Brush.linearGradient(listOf(Color(0xFFFF7043), Color(0xFFBF360C))), // 9. Deep Orange
-        Brush.linearGradient(listOf(Color(0xFFFFCA28), Color(0xFFFF6F00))), // 10. Amber
-        Brush.linearGradient(listOf(Color(0xFF8E24AA), Color(0xFF4A148C))), // 11. Purple
-        Brush.linearGradient(listOf(Color(0xFFBA68C8), Color(0xFF6A1B9A))), // 12. Light Purple
-        Brush.linearGradient(listOf(Color(0xFFEC407A), Color(0xFF880E4F))), // 13. Pink
-        Brush.linearGradient(listOf(Color(0xFF795548), Color(0xFF3E2723))), // 14. Brown
-        Brush.linearGradient(listOf(Color(0xFF78909C), Color(0xFF37474F))), // 15. Blue Grey Light
-        Brush.linearGradient(listOf(Color(0xFF424242), Color(0xFF212121))), // 16. Dark Grey
-        Brush.linearGradient(listOf(Color(0xFF546E7A), Color(0xFF263238)))  // 17. Blue Grey Dark
+        Brush.linearGradient(listOf(Color(0xFF43A047), Color(0xFF1B5E20))),
+        Brush.linearGradient(listOf(Color(0xFF66BB6A), Color(0xFF33691E))),
+        Brush.linearGradient(listOf(Color(0xFF009688), Color(0xFF004D40))),
+        Brush.linearGradient(listOf(Color(0xFF1E88E5), Color(0xFF0D47A1))),
+        Brush.linearGradient(listOf(Color(0xFF039BE5), Color(0xFF01579B))),
+        Brush.linearGradient(listOf(Color(0xFF42A5F5), Color(0xFF1565C0))),
+        Brush.linearGradient(listOf(Color(0xFF3949AB), Color(0xFF1A237E))),
+        Brush.linearGradient(listOf(Color(0xFFFB8C00), Color(0xFFE65100))),
+        Brush.linearGradient(listOf(Color(0xFFE53935), Color(0xFFB71C1C))),
+        Brush.linearGradient(listOf(Color(0xFFFF7043), Color(0xFFBF360C))),
+        Brush.linearGradient(listOf(Color(0xFFFFCA28), Color(0xFFFF6F00))),
+        Brush.linearGradient(listOf(Color(0xFF8E24AA), Color(0xFF4A148C))),
+        Brush.linearGradient(listOf(Color(0xFFBA68C8), Color(0xFF6A1B9A))),
+        Brush.linearGradient(listOf(Color(0xFFEC407A), Color(0xFF880E4F))),
+        Brush.linearGradient(listOf(Color(0xFF795548), Color(0xFF3E2723))),
+        Brush.linearGradient(listOf(Color(0xFF78909C), Color(0xFF37474F))),
+        Brush.linearGradient(listOf(Color(0xFF424242), Color(0xFF212121))),
+        Brush.linearGradient(listOf(Color(0xFF546E7A), Color(0xFF263238)))
     )
     return if (index in gradients.indices) gradients[index] else gradients[0]
 }

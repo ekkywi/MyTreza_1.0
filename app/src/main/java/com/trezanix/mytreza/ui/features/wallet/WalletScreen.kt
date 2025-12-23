@@ -9,11 +9,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -33,15 +33,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.trezanix.mytreza.R
 import com.trezanix.mytreza.ui.theme.*
 import java.text.NumberFormat
 import java.util.Locale
 import kotlin.random.Random
-import java.util.UUID
 
-// ✅ MODEL FINAL (Updated)
 data class WalletModel(
     val id: String,
     val name: String,
@@ -50,14 +49,15 @@ data class WalletModel(
     val gradient: Brush,
     val isShared: Boolean = false,
     val currency: String = "IDR",
-    val createdAt: String = "01/24" // Format MM/YY ala Kartu Kredit
+    val createdAt: String = "01/24",
+    val isArchived: Boolean
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WalletScreen(
     onWalletClick: (String) -> Unit = {},
-    onAddWalletClick: () -> Unit = {},
+    onArchiveListClick: () -> Unit = {},
     viewModel: WalletViewModel = hiltViewModel()
 ) {
     val wallets by viewModel.walletListState.collectAsState()
@@ -75,7 +75,7 @@ fun WalletScreen(
             item { TotalBalanceGlassCard(totalBalance) }
             item {
                 Text(
-                    text = "Daftar Akun",
+                    text = stringResource(R.string.wallet_wallet_list),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(start = 24.dp, top = 8.dp),
                     color = TextPrimary
@@ -85,7 +85,7 @@ fun WalletScreen(
             if (wallets.isEmpty()) {
                 item {
                     Text(
-                        text = "Belum ada dompet. Tambah sekarang!",
+                        text = stringResource(R.string.wallet_no_wallet),
                         modifier = Modifier.padding(24.dp),
                         color = TextHint
                     )
@@ -119,10 +119,19 @@ fun WalletScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        "Dompet Saya",
+                        stringResource(R.string.wallet_topbar),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = BrandDarkText
                     )
+                },
+                actions = {
+                    IconButton(onClick = onArchiveListClick) {
+                        Icon(
+                            imageVector = Icons.Outlined.Archive,
+                            contentDescription = "Arsip",
+                            tint = BrandDarkText
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color.Transparent
@@ -135,21 +144,28 @@ fun WalletScreen(
 @Composable
 fun TotalBalanceGlassCard(total: Double) {
     Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 8.dp),
         shape = RoundedCornerShape(32.dp),
         colors = CardDefaults.cardColors(containerColor = SurfaceColor.copy(alpha = 0.75f)),
         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.5f))
     ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Total Kekayaan Bersih", style = MaterialTheme.typography.labelMedium, color = TextHint)
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(stringResource(R.string.wallet_total_worth), style = MaterialTheme.typography.labelMedium, color = TextHint)
             Text(formatRupiah(total), style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.ExtraBold, fontSize = 32.sp), color = BrandDarkText)
             Spacer(modifier = Modifier.height(24.dp))
             HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = Color.Black.copy(0.05f))
             Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                SummaryItem("Pemasukan", "+Rp 15.000.000", Color(0xFF4CAF50), Icons.Default.ArrowDownward)
-                Box(modifier = Modifier.width(1.dp).height(30.dp).background(Color.Black.copy(0.1f)))
-                SummaryItem("Pengeluaran", "-Rp 4.500.000", Color(0xFFE53935), Icons.Default.ArrowUpward)
+                SummaryItem(stringResource(R.string.wallet_income), "+Rp 15.000.000", Color(0xFF4CAF50), Icons.Default.ArrowDownward)
+                Box(modifier = Modifier
+                    .width(1.dp)
+                    .height(30.dp)
+                    .background(Color.Black.copy(0.1f)))
+                SummaryItem(stringResource(R.string.wallet_expense), "-Rp 4.500.000", Color(0xFFE53935), Icons.Default.ArrowUpward)
             }
         }
     }
@@ -167,10 +183,8 @@ fun SummaryItem(label: String, amount: String, color: Color, icon: ImageVector) 
     }
 }
 
-// ✅ LAYOUT FINAL: REAL CREDIT CARD STYLE (FIXED INFO)
 @Composable
 fun WalletCardItem(wallet: WalletModel, showMenu: Boolean = false) {
-    // Format UUID agar terlihat seperti nomor kartu
     val formattedCardNumber = remember(wallet.id) {
         wallet.id.replace("-", "").take(16).chunked(4).joinToString("  ")
     }
@@ -187,24 +201,29 @@ fun WalletCardItem(wallet: WalletModel, showMenu: Boolean = false) {
                 .fillMaxSize()
                 .background(wallet.gradient)
         ) {
-            // 1. Pattern Background
             PremiumCardPattern()
 
-            // Overlay Vignette
-            Box(modifier = Modifier.fillMaxSize().background(Brush.radialGradient(colors = listOf(Color.Transparent, Color.Black.copy(0.3f)), radius = 800f)))
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(0.3f)
+                        ), radius = 800f
+                    )
+                ))
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(24.dp)
             ) {
-                // --- BARIS 1: BRAND & CONTACTLESS ---
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Top
                 ) {
-                    // Kiri Atas: Logo & Wallet Type
                     Column {
                         Text(
                             text = "TREZA",
@@ -215,7 +234,6 @@ fun WalletCardItem(wallet: WalletModel, showMenu: Boolean = false) {
                             ),
                             color = Color.White.copy(alpha = 0.9f)
                         )
-                        // ✅ TIPE WALLET (Di bawah logo, mirip tulisan "DEBIT" di kartu asli)
                         Text(
                             text = wallet.type.uppercase(),
                             style = MaterialTheme.typography.labelSmall.copy(
@@ -227,7 +245,6 @@ fun WalletCardItem(wallet: WalletModel, showMenu: Boolean = false) {
                         )
                     }
 
-                    // Kanan Atas: Contactless / Menu
                     if (showMenu) {
                         Icon(Icons.Default.MoreVert, null, tint = Color.White, modifier = Modifier.clickable { /* Menu */ })
                     } else {
@@ -235,15 +252,12 @@ fun WalletCardItem(wallet: WalletModel, showMenu: Boolean = false) {
                     }
                 }
 
-                // --- BARIS 2: EMV CHIP ---
                 Spacer(modifier = Modifier.height(18.dp))
-                // Logika Chip: Emas jika Shared/Savings
                 val useGoldChip = wallet.isShared || wallet.type == "Savings" || wallet.type == "Investment"
                 EmvChip(isGold = useGoldChip)
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // --- BARIS 3: NOMOR KARTU (UUID) ---
                 Text(
                     text = formattedCardNumber.uppercase(),
                     style = MaterialTheme.typography.titleLarge.copy(
@@ -260,23 +274,19 @@ fun WalletCardItem(wallet: WalletModel, showMenu: Boolean = false) {
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // --- BARIS 4: INFO BAWAH ---
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Bottom
                 ) {
-                    // Kiri Bawah: Member Since & Nama
                     Column {
-                        // ✅ MEMBER SINCE (Pengganti Valid Thru)
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "MEMBER\nSINCE", // Istilah umum di kartu kredit
+                                text = "MEMBER\nSINCE",
                                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 5.sp, lineHeight = 6.sp),
                                 color = Color.White.copy(0.7f)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
-                            // Tanggal Pembuatan
                             Text(
                                 text = wallet.createdAt,
                                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace),
@@ -286,7 +296,6 @@ fun WalletCardItem(wallet: WalletModel, showMenu: Boolean = false) {
 
                         Spacer(modifier = Modifier.height(4.dp))
 
-                        // Nama Pemilik
                         Text(
                             text = wallet.name.uppercase(),
                             style = MaterialTheme.typography.bodyMedium.copy(
@@ -299,9 +308,7 @@ fun WalletCardItem(wallet: WalletModel, showMenu: Boolean = false) {
                         )
                     }
 
-                    // Kanan Bawah: Currency & Balance
                     Column(horizontalAlignment = Alignment.End) {
-                        // ✅ CURRENCY CODE & SHARED BADGE
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             if(wallet.isShared) {
                                 Surface(
@@ -313,13 +320,12 @@ fun WalletCardItem(wallet: WalletModel, showMenu: Boolean = false) {
                                 }
                             }
                             Text(
-                                text = wallet.currency, // IDR / USD
+                                text = wallet.currency,
                                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, fontSize = 10.sp),
                                 color = Color.White.copy(alpha = 0.8f)
                             )
                         }
 
-                        // Saldo
                         Text(
                             text = formatRupiah(wallet.balance),
                             style = MaterialTheme.typography.titleLarge.copy(
@@ -335,8 +341,6 @@ fun WalletCardItem(wallet: WalletModel, showMenu: Boolean = false) {
     }
 }
 
-// --- VISUAL ELEMENTS ---
-
 @Composable
 fun EmvChip(isGold: Boolean = false) {
     val gradientColors = if (isGold) {
@@ -350,7 +354,13 @@ fun EmvChip(isGold: Boolean = false) {
         modifier = Modifier
             .size(width = 50.dp, height = 35.dp)
             .clip(RoundedCornerShape(6.dp))
-            .background(brush = Brush.linearGradient(colors = gradientColors, start = Offset(0f, 0f), end = Offset(100f, 100f)))
+            .background(
+                brush = Brush.linearGradient(
+                    colors = gradientColors,
+                    start = Offset(0f, 0f),
+                    end = Offset(100f, 100f)
+                )
+            )
             .border(1.dp, borderColor, RoundedCornerShape(6.dp))
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -368,7 +378,9 @@ fun EmvChip(isGold: Boolean = false) {
 
 @Composable
 fun ContactlessSymbol() {
-    Canvas(modifier = Modifier.size(24.dp).rotate(90f)) {
+    Canvas(modifier = Modifier
+        .size(24.dp)
+        .rotate(90f)) {
         val centerX = size.width / 2; val centerY = size.height; val baseRadius = size.width * 0.3f; val strokeWidth = 2.dp.toPx(); val color = Color.White.copy(alpha = 0.8f)
         for (i in 0..2) {
             val radius = baseRadius + (i * 10.dp.toPx())

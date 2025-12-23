@@ -90,4 +90,31 @@
     <string name="action_gold">Gold</string>
     <string name="action_crypto">Crypto</string>
     <string name="action_protection">Protection</string>
+
+    <!--Wallet Screen-->
+    <string name="wallet_topbar">My Wallet</string>
+    <string name="wallet_wallet_list">Wallet List</string>
+    <string name="wallet_no_wallet">No wallet yet. Add one now!</string>
+    <string name="wallet_total_worth">Total Net Worth</string>
+    <string name="wallet_income">Income</string>
+    <string name="wallet_expense">Expense</string>
+
+    <!--Wallet Detail Screen-->
+    <string name="wallet_detail_topbar">Wallet Details</string>
+    <string name="wallet_detail_button_edit">Edit</string>
+    <string name="wallet_detail_button_archives">Archives</string>
+    <string name="wallet_detail_button_delete">Delete</string>
+    <string name="wallet_detail_transaction_history">Transaction History</string>
+    <string name="wallet_detail_see_all">See All</string>
+    <string name="wallet_detail_button_recover">Recover</string>
+    <string name="wallet_detail_delete_alert_title">Delete Wallet?</string>
+    <string name="wallet_detail_delete_alert_text">This action is permanent. Data will be lost from the database.</string>
+    <string name="wallet_detail_archive_alert_title">Archive Wallet?</string>
+    <string name="wallet_detail_archive_alert_text">This wallet will be hidden from the total balance.</string>
+    <string name="wallet_detail_recover_alert_title">Recover Wallet?</string>
+    <string name="wallet_detail_recover_alert_text">The wallet will appear on the main page again and the balance will be calculated again.</string>
+    <string name="wallet_detail_alert_confirmation_delete">Delete</string>
+    <string name="wallet_detail_alert_confirmation_cancel">Cancel</string>
+    <string name="wallet_detail_alert_confirmation_recover">Recover</string>
+    <string name="wallet_detail_alert_confirmation_archive">Archive</string>
 </resources>

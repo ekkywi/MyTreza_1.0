@@ -14,9 +14,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,13 +25,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import com.trezanix.mytreza.ui.theme.*
 
-// Model Data untuk Input Member (UI Only sementara)
 data class WalletMemberInput(
     val username: String,
     val role: String,
@@ -45,31 +39,18 @@ data class WalletMemberInput(
 fun WalletFormScreen(
     walletId: String? = null,
     onNavigateBack: () -> Unit,
-    onSaveClick: () -> Unit, // ✅ FIX: Tambah Koma di sini
+    onSaveClick: () -> Unit,
     viewModel: WalletViewModel = hiltViewModel()
 ) {
-    // 1. Observe Data dari Database (Bukan Dummy lagi)
-    val currentWallet by viewModel.currentWallet.collectAsState()
-
-    // 2. State Lokal Form
     var name by remember { mutableStateOf("") }
     var balance by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf("Tunai") }
     var selectedColorIndex by remember { mutableStateOf(0) }
     var isSharedWallet by remember { mutableStateOf(false) }
 
-    // State UI Tambahan
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedRole by remember { mutableStateOf("Editor") }
-    var isSearching by remember { mutableStateOf(false) }
-    var searchResultError by remember { mutableStateOf<String?>(null) }
+    val currentWallet by viewModel.currentWallet.collectAsState()
     val invitedMembers = remember { mutableStateListOf<WalletMemberInput>() }
-
-    val scope = rememberCoroutineScope()
-    val walletTypes = listOf("Tunai", "Bank", "E-Wallet", "Savings", "Investment")
-    val roles = listOf("Admin", "Editor", "Viewer")
-
-    // List Warna (Sesuai ViewModel)
+    val walletTypes = listOf("Tunai", "Bank", "E-Wallet", "Savings", "Investasi")
     val gradients = listOf(
         Brush.linearGradient(listOf(Color(0xFF43A047), Color(0xFF1B5E20))),
         Brush.linearGradient(listOf(Color(0xFF66BB6A), Color(0xFF33691E))),
@@ -91,7 +72,6 @@ fun WalletFormScreen(
         Brush.linearGradient(listOf(Color(0xFF546E7A), Color(0xFF263238)))
     )
 
-    // 3. LOGIKA LOAD DATA (Saat Masuk Screen)
     LaunchedEffect(walletId) {
         if (walletId != null) {
             viewModel.loadWalletById(walletId)
@@ -100,11 +80,10 @@ fun WalletFormScreen(
         }
     }
 
-    // 4. LOGIKA ISI FORM OTOMATIS (Saat Data DB Masuk)
     LaunchedEffect(currentWallet) {
         currentWallet?.let {
             name = it.name
-            balance = it.balance.toLong().toString() // Hilangkan koma desimal
+            balance = it.balance.toLong().toString()
             selectedType = it.type
             isSharedWallet = it.isShared
             selectedColorIndex = it.colorIndex
@@ -112,7 +91,7 @@ fun WalletFormScreen(
     }
 
     Scaffold(
-        containerColor = SurfaceColor, // Pastikan background konsisten
+        containerColor = SurfaceColor,
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -134,11 +113,10 @@ fun WalletFormScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(24.dp)
-                    .navigationBarsPadding() // Penting agar tidak tertutup gesture bar
+                    .navigationBarsPadding()
             ) {
                 Button(
                     onClick = {
-                        // ✅ FIX: Panggil ViewModel Save saat tombol diklik
                         if (name.isNotEmpty() && balance.isNotEmpty()) {
                             viewModel.saveWallet(
                                 id = walletId,
@@ -148,7 +126,7 @@ fun WalletFormScreen(
                                 isShared = isSharedWallet,
                                 colorIndex = selectedColorIndex
                             )
-                            onSaveClick() // Navigasi Balik
+                            onSaveClick()
                         }
                     },
                     modifier = Modifier.fillMaxWidth().height(56.dp),
@@ -168,12 +146,10 @@ fun WalletFormScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
 
-            // 1. PREVIEW KARTU
             item {
                 Text("Preview Tampilan", style = MaterialTheme.typography.labelLarge, color = TextHint)
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Pastikan gradient aman dari IndexOutOfBounds
                 val safeGradient = if(selectedColorIndex in gradients.indices) gradients[selectedColorIndex] else gradients[0]
 
                 WalletCardItem(
@@ -184,13 +160,13 @@ fun WalletFormScreen(
                         balance = balance.toDoubleOrNull() ?: 0.0,
                         gradient = safeGradient,
                         isShared = isSharedWallet,
-                        currency = "IDR"
+                        currency = "IDR",
+                        isArchived = false
                     ),
                     showMenu = false
                 )
             }
 
-            // 2. INPUT NAMA
             item {
                 GlassInput(
                     label = "Nama Dompet",
@@ -200,7 +176,6 @@ fun WalletFormScreen(
                 )
             }
 
-            // 3. INPUT SALDO
             item {
                 GlassInput(
                     label = "Saldo Saat Ini",
@@ -212,7 +187,6 @@ fun WalletFormScreen(
                 )
             }
 
-            // 4. PILIH TIPE
             item {
                 Text("Tipe Dompet", style = MaterialTheme.typography.labelLarge, color = TextHint)
                 Spacer(modifier = Modifier.height(8.dp))
@@ -236,7 +210,7 @@ fun WalletFormScreen(
                         "Bank" -> "Rekening bank utama untuk gaji dan transfer."
                         "E-Wallet" -> "Saldo digital (GoPay, OVO, Dana) untuk pembayaran cepat."
                         "Savings" -> "Tabungan khusus atau dana darurat."
-                        "Investment" -> "Saldo RDN atau Buying Power. Bukan nilai aset sahamnya."
+                        "Investasi" -> "Saldo RDN atau Buying Power. Bukan nilai aset sahamnya."
                         else -> "Pilih tipe dompet."
                     }
 
@@ -255,7 +229,6 @@ fun WalletFormScreen(
                 }
             }
 
-            // 5. PILIH WARNA
             item {
                 Text("Warna Kartu", style = MaterialTheme.typography.labelLarge, color = TextHint)
                 Spacer(modifier = Modifier.height(12.dp))
@@ -269,7 +242,7 @@ fun WalletFormScreen(
                                 .clickable { selectedColorIndex = index }
                                 .border(
                                     width = if (selectedColorIndex == index) 3.dp else 0.dp,
-                                    color = if (selectedColorIndex == index) BrandPrimary else Color.Transparent, // Border warna primary biar kelihatan di bg putih
+                                    color = if (selectedColorIndex == index) BrandPrimary else Color.Transparent,
                                     shape = CircleShape
                                 ),
                             contentAlignment = Alignment.Center
@@ -282,7 +255,6 @@ fun WalletFormScreen(
                 }
             }
 
-            // 6. === SECTION SHARED WALLET (UI ONLY) ===
             item {
                 Column(
                     modifier = Modifier
@@ -308,14 +280,7 @@ fun WalletFormScreen(
                     AnimatedVisibility(visible = isSharedWallet) {
                         Column(modifier = Modifier.padding(top = 16.dp)) {
                             HorizontalDivider(modifier = Modifier.padding(bottom = 16.dp), color = Color.LightGray.copy(0.3f))
-
-                            // ... (Bagian Search & Member List tetap sama, hanya visual) ...
                             Text("Tambah Anggota (Coming Soon)", style = MaterialTheme.typography.labelSmall, color = TextHint)
-
-                            // Simpan codingan UI Search kamu disini, tapi ketahuilah
-                            // saat tombol Save diklik, data anggota ini BELUM tersimpan ke DB
-                            // karena kita belum buat tabel Relation-nya.
-                            // Untuk sekarang fitur ini hanya mengubah tampilan kartu jadi Gold.
                         }
                     }
                 }
@@ -325,8 +290,6 @@ fun WalletFormScreen(
         }
     }
 }
-
-// --- SUB COMPONENTS ---
 
 @Composable
 fun GlassInput(

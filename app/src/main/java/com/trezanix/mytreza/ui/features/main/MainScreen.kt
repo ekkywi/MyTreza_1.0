@@ -32,30 +32,24 @@ import com.trezanix.mytreza.ui.features.profile.ProfileScreen
 import com.trezanix.mytreza.ui.features.wallet.WalletScreen
 import com.trezanix.mytreza.ui.features.wallet.WalletDetailScreen
 import com.trezanix.mytreza.ui.features.wallet.WalletFormScreen
+import com.trezanix.mytreza.ui.features.wallet.ArchivedWalletsScreen
 import com.trezanix.mytreza.ui.theme.*
 
-// 1. Definisi State Navigasi Wallet
 sealed class WalletNavState {
     object List : WalletNavState()
     data class Detail(val id: String) : WalletNavState()
     data class Form(val id: String? = null) : WalletNavState()
+    object ArchivedList : WalletNavState()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
     var currentScreen by remember { mutableStateOf<BottomNavItem>(BottomNavItem.Dashboard) }
-
-    // 2. State Wallet
     var walletNavState by remember { mutableStateOf<WalletNavState>(WalletNavState.List) }
-
-    // 👇 LOGIKA UTAMA: Tampilkan Nav Bar HANYA jika di List
-    // (Tambahan: Pastikan juga tampil jika sedang BUKAN di tab wallet, misal Dashboard)
-    val showBottomBarAndFab = (currentScreen != BottomNavItem.Wallet) || (walletNavState is WalletNavState.List)
-
     var showAddSheet by remember { mutableStateOf(false) }
 
-    // --- ANIMASI AURORA (Background) ---
+    val showBottomBarAndFab = (currentScreen != BottomNavItem.Wallet) || (walletNavState is WalletNavState.List)
     val infiniteTransition = rememberInfiniteTransition(label = "AuroraBreathing")
     val offset1 by infiniteTransition.animateFloat(
         initialValue = 0f, targetValue = 50f,
@@ -71,7 +65,6 @@ fun MainScreen() {
             repeatMode = RepeatMode.Reverse
         ), label = "Scale1"
     )
-
     val offset2 by infiniteTransition.animateFloat(
         initialValue = 0f, targetValue = -40f,
         animationSpec = infiniteRepeatable(
@@ -87,7 +80,6 @@ fun MainScreen() {
         ), label = "Scale2"
     )
 
-    // 3. BackHandler
     BackHandler(enabled = showAddSheet || (currentScreen == BottomNavItem.Wallet && walletNavState !is WalletNavState.List) || currentScreen != BottomNavItem.Dashboard) {
         when {
             showAddSheet -> showAddSheet = false
@@ -103,7 +95,6 @@ fun MainScreen() {
             .fillMaxSize()
             .background(BrandBackground)
     ) {
-        // --- CANVAS BACKGROUND ---
         Canvas(modifier = Modifier.fillMaxSize().blur(60.dp)) {
             val width = size.width
             val height = size.height
@@ -128,13 +119,12 @@ fun MainScreen() {
 
         Scaffold(
             containerColor = Color.Transparent,
-            // 👇 PERBAIKAN 1: Bungkus bottomBar dengan kondisi if
             bottomBar = {
                 if (showBottomBarAndFab) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .navigationBarsPadding() // Penting agar tidak tertutup gesture bar HP
+                            .navigationBarsPadding()
                             .padding(horizontal = 24.dp, vertical = 24.dp),
                         contentAlignment = Alignment.BottomCenter
                     ) {
@@ -179,7 +169,6 @@ fun MainScreen() {
                             }
                         }
 
-                        // --- FAB ADD ---
                         val fabShape = RoundedCornerShape(20.dp)
                         Box(
                             contentAlignment = Alignment.Center,
@@ -199,9 +188,6 @@ fun MainScreen() {
             }
         ) { innerPadding ->
 
-            // 👇 PERBAIKAN 2: Padding Bawah Dinamis
-            // Jika Nav Bar muncul, padding bawah 100.dp (biar konten ga ketutup).
-            // Jika Nav Bar hilang (Form), padding bawah 0.dp (biar full screen).
             val bottomPadding = if (showBottomBarAndFab) 100.dp else 0.dp
 
             Box(
@@ -223,14 +209,13 @@ fun MainScreen() {
                         )
                         BottomNavItem.Analysis -> AnalysisScreen()
 
-                        // 4. Logika Navigasi Wallet
                         BottomNavItem.Wallet -> {
                             Crossfade(targetState = walletNavState, label = "WalletNavTransition") { state ->
                                 when (state) {
                                     is WalletNavState.List -> {
                                         WalletScreen(
                                             onWalletClick = { id -> walletNavState = WalletNavState.Detail(id) },
-                                            onAddWalletClick = { walletNavState = WalletNavState.Form(null) }
+                                            onArchiveListClick = { walletNavState = WalletNavState.ArchivedList }
                                         )
                                     }
                                     is WalletNavState.Detail -> {
@@ -255,6 +240,14 @@ fun MainScreen() {
                                             }
                                         )
                                     }
+                                    is WalletNavState.ArchivedList -> {
+                                        ArchivedWalletsScreen(
+                                            onBackClick = { walletNavState = WalletNavState.List },
+                                            onWalletClick = { id->
+                                                walletNavState = WalletNavState.Detail(id)
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -264,7 +257,6 @@ fun MainScreen() {
                 }
             }
 
-            // 5. BottomSheet
             if (showAddSheet) {
                 ModalBottomSheet(
                     onDismissRequest = { showAddSheet = false },
@@ -289,7 +281,6 @@ fun MainScreen() {
     }
 }
 
-// --- GLASS NAV ITEM ---
 @Composable
 fun GlassNavItem(
     item: BottomNavItem,
