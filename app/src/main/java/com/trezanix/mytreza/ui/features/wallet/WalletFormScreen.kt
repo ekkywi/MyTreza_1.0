@@ -71,6 +71,7 @@ fun WalletFormScreen(
         Brush.linearGradient(listOf(Color(0xFF424242), Color(0xFF212121))),
         Brush.linearGradient(listOf(Color(0xFF546E7A), Color(0xFF263238)))
     )
+    val isEditMode = walletId !=null
 
     LaunchedEffect(walletId) {
         if (walletId != null) {
@@ -178,13 +179,36 @@ fun WalletFormScreen(
 
             item {
                 GlassInput(
-                    label = "Saldo Saat Ini",
+                    label = if (isEditMode) "Saldo (Terkunci)" else "Saldo Awal",
                     value = balance,
-                    onValueChange = { if (it.all { char -> char.isDigit() }) balance = it },
+                    onValueChange = {
+                        if (!isEditMode && it.all { char -> char.isDigit() }) {
+                            balance = it
+                        }
+                    },
                     placeholder = "0",
                     keyboardType = KeyboardType.Number,
-                    prefix = { Text("Rp ", fontWeight = FontWeight.Bold, color = BrandDarkText) }
+                    prefix = { Text("Rp ", fontWeight = FontWeight.Bold, color = BrandDarkText) },
+                    enabled = !isEditMode
                 )
+
+                if (isEditMode) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = TextHint,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Saldo hanya dapat diubah melalui transaksi.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TextHint
+                        )
+                    }
+                }
             }
 
             item {
@@ -298,7 +322,8 @@ fun GlassInput(
     onValueChange: (String) -> Unit,
     placeholder: String,
     keyboardType: KeyboardType = KeyboardType.Text,
-    prefix: @Composable (() -> Unit)? = null
+    prefix: @Composable (() -> Unit)? = null,
+    enabled: Boolean = true
 ) {
     Column {
         Text(label, style = MaterialTheme.typography.labelLarge, color = TextHint)
@@ -309,9 +334,14 @@ fun GlassInput(
             placeholder = { Text(placeholder, color = TextHint.copy(alpha = 0.5f)) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
+            enabled = enabled,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = SurfaceColor.copy(alpha = 0.5f),
                 unfocusedContainerColor = SurfaceColor.copy(alpha = 0.3f),
+                disabledContainerColor = Color.Black.copy(alpha = 0.05f),
+                disabledBorderColor = Color.Transparent,
+                disabledTextColor = TextPrimary.copy(alpha = 0.7f),
+                disabledPrefixColor = TextPrimary.copy(alpha = 0.7f),
                 focusedBorderColor = BrandPrimary,
                 unfocusedBorderColor = Color.Transparent,
                 cursorColor = BrandPrimary
