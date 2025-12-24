@@ -2,6 +2,18 @@
 <resources>
     <string name="app_name">MyTreza</string>
 
+    <!--Universal-->
+    <string name="type_cash">Tunai</string>
+    <string name="type_bank">Bank</string>
+    <string name="type_ewallet">E-Wallet</string>
+    <string name="type_savings">Savings</string>
+    <string name="type_investment">Investasi</string>
+    <string name="desc_cash">Uang fisik yang dipegang tangan. Tidak ada biaya admin.</string>
+    <string name="desc_bank">Rekening bank utama untuk gaji dan transfer.</string>
+    <string name="desc_ewallet">Saldo digital (GoPay, OVO, Dana) untuk pembayaran cepat.</string>
+    <string name="desc_savings">Tabungan khusus atau dana darurat.</string>
+    <string name="desc_investment">Saldo RDN atau Buying Power. Bukan nilai aset sahamnya.</string>
+
     <!--Login Screen-->
     <string name="login_welcome_title">Senang Melihatmu Lagi!</string>
     <string name="login_subtitle">Yuk, lanjutkan perjalanan finansialmu..</string>

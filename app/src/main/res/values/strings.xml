@@ -1,6 +1,18 @@
 <resources>
     <string name="app_name">MyTreza</string>
 
+    <!--Universal-->
+    <string name="type_cash">Cash</string>
+    <string name="type_bank">Bank</string>
+    <string name="type_ewallet">E-Wallet</string>
+    <string name="type_savings">Savings</string>
+    <string name="type_investment">Investment"</string>
+    <string name="desc_cash">Hand held physical money. There are no admin fees.</string>
+    <string name="desc_bank">Main bank account for salaries and transfers.</string>
+    <string name="desc_ewallet">Digital balance (GoPay, OVO, Dana) for fast payments.</string>
+    <string name="desc_savings">Special savings or emergency fund.</string>
+    <string name="desc_investment">Investor Account balance or Buying Power. Not the value of the share assets.</string>
+
     <!--Login Screen-->
     <string name="login_welcome_title">Nice to See You Again!</string>
     <string name="login_subtitle">Come on, continue your financial journey.</string>
@@ -117,4 +129,27 @@
     <string name="wallet_detail_alert_confirmation_cancel">Cancel</string>
     <string name="wallet_detail_alert_confirmation_recover">Recover</string>
     <string name="wallet_detail_alert_confirmation_archive">Archive</string>
+
+    <!--Wallet Archive-->
+    <string name="wallet_archive_info_click_to_restore">Click the card to restore</string>
+    <string name="wallet_archive_header_title">Wallet Archived</string>
+    <string name="wallet_archive_info_empty_list">Wallet Archive is Empty</string>
+    <string name="wallet_archive_info_wallet_appear">The wallet you archived\nwill appear here.</string>
+
+    <!-- Wallet Form-->
+    <string name="wallet_form_header_add">Add Wallet</string>
+    <string name="wallet_form_header_edit">Edit Wallet</string>
+    <string name="wallet_form_input_preview">Display Preview</string>
+    <string name="wallet_form_input_label_name">Wallet Name</string>
+    <string name="wallet_form_input_placeholder_name">Example: Home Buying Savings</string>
+    <string name="wallet_form_input_label_balance">Initial Balance</string>
+    <string name="wallet_form_input_label_balance_locked">Balance (Locked)</string>
+    <string name="wallet_form_input_note_balance">The balance can only be changed through transactions.</string>
+    <string name="wallet_form_input_label_type">Wallet Type</string>
+    <string name="wallet_form_input_label_type_locked">Wallet Type (Locked)</string>
+    <string name="wallet_form_input_note_type">The wallet type cannot be changed once created.</string>
+    <string name="wallet_form_input_label_card_color">Card Color</string>
+    <string name="wallet_form_input_label_shared_wallet">Shared Wallet</string>
+    <string name="wallet_form_input_sublabel_shared_wallet">Manage funds together with team/family</string>
+    <string name="wallet_form_input_note_shared_wallet">Add Member (Coming Soon)</string>
 </resources>

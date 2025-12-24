@@ -18,10 +18,12 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.trezanix.mytreza.R
 import com.trezanix.mytreza.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,7 +62,9 @@ fun ArchivedWalletsScreen(
             .fillMaxSize()
             .background(BrandBackground)
     ) {
-        Canvas(modifier = Modifier.fillMaxSize().blur(60.dp)) {
+        Canvas(modifier = Modifier
+            .fillMaxSize()
+            .blur(60.dp)) {
             val width = size.width
             val height = size.height
 
@@ -108,10 +112,12 @@ fun ArchivedWalletsScreen(
 
                         item {
                             Text(
-                                text = "Klik kartu untuk memulihkan",
+                                text = stringResource(R.string.wallet_archive_info_click_to_restore),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = TextHint,
-                                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp),
                                 textAlign = TextAlign.Center
                             )
                         }
@@ -135,7 +141,7 @@ fun ArchivedWalletsScreen(
                     CenterAlignedTopAppBar(
                         title = {
                             Text(
-                                "Arsip Dompet",
+                                stringResource(R.string.wallet_archive_header_title),
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                                 color = BrandDarkText
                             )
@@ -170,13 +176,13 @@ fun EmptyArchiveState() {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Arsip Kosong",
+            text = stringResource(R.string.wallet_archive_info_empty_list),
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
             color = BrandDarkText
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Dompet yang Anda arsipkan\nakan muncul di sini.",
+            text = stringResource(R.string.wallet_archive_info_wallet_appear),
             style = MaterialTheme.typography.bodyMedium,
             color = TextHint,
             textAlign = TextAlign.Center
