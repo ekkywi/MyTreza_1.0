@@ -16,6 +16,9 @@ interface WalletDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWallet(wallet: WalletEntity)
 
+    @Update
+    suspend fun updateWallet(wallet: WalletEntity)
+
     @Delete
     suspend fun deleteWallet(wallet: WalletEntity)
 
@@ -27,4 +30,7 @@ interface WalletDao {
 
     @Query("UPDATE wallets SET isArchived = :isArchived WHERE id = :id")
     suspend fun updateArchivedStatus(id: String, isArchived: Boolean)
+
+    @Query("SELECT * FROM wallets WHERE id = :id LIMIT 1")
+    suspend fun getWalletByIdSnapshot(id: String): WalletEntity
 }

@@ -8,6 +8,7 @@ import com.trezanix.mytreza.data.local.AppDatabase
 import com.trezanix.mytreza.data.local.dao.CategoryDao
 import com.trezanix.mytreza.data.local.dao.WalletDao
 import com.trezanix.mytreza.data.local.entity.CategoryEntity
+import com.trezanix.mytreza.data.local.dao.TransactionDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -52,6 +53,11 @@ object DatabaseModule {
 
     @Provides
     fun provideCategoryDao(database: AppDatabase): CategoryDao = database.categoryDao()
+
+    @Provides
+    fun provideTransactionDao(database: AppDatabase): TransactionDao {
+        return database.transactionDao()
+    }
 
     private suspend fun populateDefaultCategories(dao: CategoryDao) {
         val default = listOf(

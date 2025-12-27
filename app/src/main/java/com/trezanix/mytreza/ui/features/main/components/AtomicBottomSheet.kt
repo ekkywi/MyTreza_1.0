@@ -39,7 +39,7 @@ data class AtomicAction(
 @Composable
 fun AtomicBottomSheetContent(
     onDismiss: () -> Unit,
-    onTransactionClick: () -> Unit = {},
+    onTransactionClick: () -> Unit,
     onWalletClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -55,7 +55,8 @@ fun AtomicBottomSheetContent(
             showComingSoon(context.getString(R.string.action_scan))
         },
         AtomicAction(stringResource(R.string.action_transaction), Icons.Default.ReceiptLong, Color(0xFF4CAF50)) {
-            showComingSoon(context.getString(R.string.action_transaction))
+            onDismiss()
+            onTransactionClick()
         },
         AtomicAction(stringResource(R.string.action_transfer), Icons.Default.SyncAlt, Color(0xFFFF9800)) {
             showComingSoon(context.getString(R.string.action_transfer))

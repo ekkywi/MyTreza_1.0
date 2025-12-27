@@ -33,6 +33,7 @@ import com.trezanix.mytreza.ui.features.wallet.WalletScreen
 import com.trezanix.mytreza.ui.features.wallet.WalletDetailScreen
 import com.trezanix.mytreza.ui.features.wallet.WalletFormScreen
 import com.trezanix.mytreza.ui.features.wallet.ArchivedWalletsScreen
+import com.trezanix.mytreza.ui.features.transaction.TransactionFormScreen
 import com.trezanix.mytreza.ui.theme.*
 
 sealed class WalletNavState {
@@ -40,6 +41,7 @@ sealed class WalletNavState {
     data class Detail(val id: String) : WalletNavState()
     data class Form(val id: String? = null) : WalletNavState()
     object ArchivedList : WalletNavState()
+    object TransactionForm: WalletNavState()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -248,6 +250,13 @@ fun MainScreen() {
                                             }
                                         )
                                     }
+                                    is WalletNavState.TransactionForm -> {
+                                        TransactionFormScreen(
+                                            onNavigateBack = {
+                                                walletNavState = WalletNavState.List
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -273,8 +282,11 @@ fun MainScreen() {
                         },
                         onTransactionClick = {
                             showAddSheet = false
+                            currentScreen = BottomNavItem.Wallet
+                            walletNavState = WalletNavState.TransactionForm
                         }
                     )
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }
