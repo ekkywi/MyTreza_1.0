@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import java.util.UUID
 
 @HiltViewModel
 class TransactionFormViewModel @Inject constructor(
@@ -73,16 +74,18 @@ class TransactionFormViewModel @Inject constructor(
         val amountValue = _amount.value.toDoubleOrNull() ?: 0.0
         val wallet = _selectedWallet.value
         val category = _selectedCategory.value
+        val type = _transactionType.value
 
-        if (amountValue > 0 && wallet != null) {
+        if (amountValue > 0 && wallet != null && category !=null) {
             viewModelScope.launch {
                 val newTransaction = TransactionEntity(
+                    id = UUID.randomUUID().toString(),
                     amount = amountValue,
                     note = _note.value,
                     date = _date.value,
                     type = _transactionType.value,
                     walletId = wallet.id,
-                    categoryId = category?.id
+                    categoryId = category.id
                 )
                 transactionRepository.addTransaction(newTransaction)
                 onSuccess()

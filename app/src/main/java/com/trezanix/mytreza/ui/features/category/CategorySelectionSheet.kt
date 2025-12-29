@@ -28,14 +28,15 @@ import com.trezanix.mytreza.ui.theme.*
 
 @Composable
 fun CategorySelectionSheet(
+        transactionType: String,
         onCategorySelected: (CategoryEntity) -> Unit,
         onAddCategoryClick: () -> Unit,
         viewModel: CategoryViewModel = hiltViewModel()
 ) {
-    var selectedType by remember { mutableStateOf("EXPENSE") }
     val expenseCategories by viewModel.expenseCategories.collectAsState()
     val incomeCategories by viewModel.incomeCategories.collectAsState()
-    val categoriesToShow = if (selectedType == "EXPENSE") expenseCategories else incomeCategories
+    val categoriesToShow = if (transactionType == "EXPENSE") expenseCategories else incomeCategories
+    val title = if (transactionType == "EXPENSE") "Select Expense Category" else "Select Income Categories"
 
     Column(
         modifier = Modifier
@@ -44,38 +45,26 @@ fun CategorySelectionSheet(
             .heightIn(max = 600.dp)
     ) {
         Text(
-            text = "Select Category",
+            text = title,
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             color = BrandDarkText,
-            modifier = Modifier.padding(bottom =16.dp)
+            modifier = Modifier.padding(bottom = 16.dp)
         )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-                .background(Color.LightGray.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
-                .padding(4.dp)
-        ) {
-            TabButton(
-                text = "Expense",
-                isSelected = selectedType == "EXPENSE",
-                onClick = { selectedType = "EXPENSE" },
-                modifier = Modifier.weight(1f)
-            )
-            TabButton(
-                text = "Income",
-                isSelected = selectedType == "INCOME",
-                onClick = { selectedType = "INCOME" },
-                modifier = Modifier.weight(1f)
-            )
-        }
-        Spacer(modifier = Modifier.height(16.dp))
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(bottom = 24.dp)
         ) {
             item {
                 AddCategoryItem(onClick = onAddCategoryClick)
+            }
+            if (categoriesToShow.isEmpty()) {
+                item {
+                    Text(
+                        "No categories available",
+                        modifier = Modifier.padding(top = 16.dp),
+                        color = Color.Gray
+                    )
+                }
             }
             items(categoriesToShow) { category ->
                 CategoryItem(

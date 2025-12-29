@@ -32,5 +32,5 @@ interface WalletDao {
     suspend fun updateArchivedStatus(id: String, isArchived: Boolean)
 
     @Query("SELECT * FROM wallets WHERE id = :id LIMIT 1")
-    suspend fun getWalletByIdSnapshot(id: String): WalletEntity
+    suspend fun getWalletByIdSnapshot(id: String): WalletEntity?
 }

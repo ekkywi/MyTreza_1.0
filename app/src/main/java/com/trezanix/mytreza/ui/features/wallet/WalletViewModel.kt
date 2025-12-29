@@ -56,77 +56,81 @@ class WalletViewModel @Inject constructor(
         _currentWallet.value = null
     }
 
+    // ✅ UPDATE: Menambahkan parameter onSuccess
     fun saveWallet(
         id: String? = null,
         name: String,
         type: String,
         balance: Double,
         isShared: Boolean,
-        colorIndex: Int
+        colorIndex: Int,
+        onSuccess: () -> Unit // Callback ketika simpan berhasil
     ) {
         viewModelScope.launch {
-            val walletId = id ?: UUID.randomUUID().toString()
-            val existingDate = _currentWallet.value?.createdAt
-            val finalDate = if (existingDate != null) {
-                existingDate
+            if (id != null) {
+                // UPDATE existing wallet
+                val current = _currentWallet.value
+                val existingDate = current?.createdAt ?: run {
+                     val formatter = SimpleDateFormat("MM/yy", Locale.getDefault())
+                     formatter.format(Date())
+                }
+                val updatedWallet = WalletEntity(
+                    id = id,
+                    name = name,
+                    type = type,
+                    balance = balance,
+                    isShared = isShared,
+                    currency = current?.currency ?: "IDR",
+                    createdAt = existingDate,
+                    colorIndex = colorIndex,
+                    isArchived = current?.isArchived ?: false
+                )
+                repository.updateWallet(updatedWallet)
             } else {
+                // CREATE new wallet
+                val walletId = UUID.randomUUID().toString()
                 val formatter = SimpleDateFormat("MM/yy", Locale.getDefault())
-                formatter.format(Date())
+                val finalDate = formatter.format(Date())
+
+                val newWallet = WalletEntity(
+                    id = walletId,
+                    name = name,
+                    type = type,
+                    balance = balance,
+                    isShared = isShared,
+                    currency = "IDR",
+                    createdAt = finalDate,
+                    colorIndex = colorIndex,
+                    isArchived = false
+                )
+                repository.insertWallet(newWallet)
             }
-            val newWallet = WalletEntity(
-                id = walletId,
-                name = name,
-                type = type,
-                balance = balance,
-                isShared = isShared,
-                currency = "IDR",
-                createdAt = finalDate,
-                colorIndex = colorIndex,
-                isArchived = _currentWallet.value?.isArchived ?: false
-            )
-            repository.insertWallet(newWallet)
+
+            // ✅ Panggil callback setelah database selesai insert/update
+            onSuccess()
         }
     }
 
     fun attemptDeleteWallet(id: String): String? {
         val wallet = _currentWallet.value ?: return "Data not found"
-
-        if (wallet.balance > 0.0) {
-            return "Failed! Balance must be 0 before it is permanently deleted."
-        }
-
-        val hasTransaction = false
-        if (hasTransaction) {
-            return "Failed! This wallet has a transaction history. Please archive it."
-        }
-
+        if (wallet.balance > 0.0) return "Failed! Balance must be 0 before it is permanently deleted."
         performDelete(id)
         return null
     }
 
     fun performDelete(id: String) {
-        viewModelScope.launch {
-            repository.deleteWalletById(id)
-        }
+        viewModelScope.launch { repository.deleteWalletById(id) }
     }
 
     fun attemptArchiveWallet(id: String): String? {
         val wallet = _currentWallet.value ?: return "Data error"
-
-        if (wallet.balance > 0.0) {
-            return "Balance must be 0 to archive wallet."
-        }
-
-        viewModelScope.launch {
-            repository.updateWalletArchived(id, true)
-        }
+        if (wallet.balance > 0.0) return "Balance must be 0 to archive wallet."
+        viewModelScope.launch { repository.updateWalletArchived(id, true) }
         return null
     }
 
     fun unarchiveWallet(id: String) {
-        viewModelScope.launch {
-            repository.updateWalletArchived(id, false)
-        }
+        viewModelScope.launch { repository.updateWalletArchived(id, false) }
     }
 }
 
@@ -167,4 +171,3 @@ fun getGradientByIndex(index: Int): Brush {
     )
     return if (index in gradients.indices) gradients[index] else gradients[0]
 }
-

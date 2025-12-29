@@ -32,4 +32,8 @@ class WalletRepositoryImpl @Inject constructor(
     override suspend fun updateWalletArchived(id: String, isArchived: Boolean) {
         walletDao.updateArchivedStatus(id, isArchived)
     }
+
+    override suspend fun updateWallet(wallet: WalletEntity) {
+        walletDao.updateWallet(wallet)
+    }
 }

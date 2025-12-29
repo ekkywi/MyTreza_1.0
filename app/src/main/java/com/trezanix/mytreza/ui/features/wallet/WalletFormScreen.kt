@@ -1,5 +1,6 @@
 package com.trezanix.mytreza.ui.features.wallet
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
@@ -28,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -71,6 +73,7 @@ fun WalletFormScreen(
     var isSharedWallet by remember { mutableStateOf(false) }
 
     val currentWallet by viewModel.currentWallet.collectAsState()
+
     val gradients = listOf(
         Brush.linearGradient(listOf(Color(0xFF43A047), Color(0xFF1B5E20))),
         Brush.linearGradient(listOf(Color(0xFF66BB6A), Color(0xFF33691E))),
@@ -193,6 +196,8 @@ fun WalletFormScreen(
                 }
             },
             bottomBar = {
+                val context = LocalContext.current
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -201,16 +206,21 @@ fun WalletFormScreen(
                 ) {
                     Button(
                         onClick = {
-                            if (name.isNotEmpty() && balance.isNotEmpty()) {
-                                viewModel.saveWallet(
-                                    id = walletId,
-                                    name = name,
-                                    type = selectedTypeOption.dbValue,
-                                    balance = balance.toDoubleOrNull() ?: 0.0,
-                                    isShared = isSharedWallet,
-                                    colorIndex = selectedColorIndex
-                                )
-                                onSaveClick()
+                                    if (name.isNotEmpty()) {
+                                        val finalBalance = if (balance.isEmpty()) 0.0 else balance.toDoubleOrNull() ?: 0.0
+                                        viewModel.saveWallet(
+                                            id = walletId,
+                                            name = name,
+                                            type = selectedTypeOption.dbValue,
+                                            balance = finalBalance,
+                                            isShared = isSharedWallet,
+                                            colorIndex = selectedColorIndex,
+                                            onSuccess =  {
+                                                onSaveClick()
+                                            }
+                                        )
+                            } else {
+                                Toast.makeText(context, "Please complete your Wallet Name and Balance!", Toast.LENGTH_SHORT).show()
                             }
                         },
                         modifier = Modifier
@@ -220,7 +230,7 @@ fun WalletFormScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary, contentColor = Color.White),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                     ) {
-                        Text("Simpan Dompet", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                        Text("Save Wallet", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
                     }
                 }
             }
@@ -271,9 +281,11 @@ fun WalletFormScreen(
                     GlassInput(
                         label = if (isEditMode) stringResource(R.string.wallet_form_input_label_balance_locked) else stringResource(R.string.wallet_form_input_label_balance),
                         value = balance,
-                        onValueChange = {
-                            if (!isEditMode && it.all { char -> char.isDigit() }) {
-                                balance = it
+                        onValueChange = { newValue ->
+                            val cleanValue = newValue.filter { it.isDigit() }
+
+                            if (!isEditMode) {
+                                balance = cleanValue
                             }
                         },
                         placeholder = "0",
