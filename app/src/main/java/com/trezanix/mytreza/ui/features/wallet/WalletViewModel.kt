@@ -5,6 +5,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.trezanix.mytreza.data.local.entity.WalletEntity
+import com.trezanix.mytreza.ui.features.transaction.components.TransactionUiItem
+import com.trezanix.mytreza.data.repository.TransactionRepository
 import com.trezanix.mytreza.data.repository.WalletRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -17,7 +19,8 @@ import java.util.Locale
 
 @HiltViewModel
 class WalletViewModel @Inject constructor(
-    private val repository: WalletRepository
+    private val repository: WalletRepository,
+    private val transactionRepository: TransactionRepository
 ) : ViewModel() {
 
     val walletListState: StateFlow<List<WalletModel>> = repository.getAllWallets()
@@ -56,7 +59,6 @@ class WalletViewModel @Inject constructor(
         _currentWallet.value = null
     }
 
-    // ✅ UPDATE: Menambahkan parameter onSuccess
     fun saveWallet(
         id: String? = null,
         name: String,
@@ -64,11 +66,10 @@ class WalletViewModel @Inject constructor(
         balance: Double,
         isShared: Boolean,
         colorIndex: Int,
-        onSuccess: () -> Unit // Callback ketika simpan berhasil
+        onSuccess: () -> Unit
     ) {
         viewModelScope.launch {
             if (id != null) {
-                // UPDATE existing wallet
                 val current = _currentWallet.value
                 val existingDate = current?.createdAt ?: run {
                      val formatter = SimpleDateFormat("MM/yy", Locale.getDefault())
@@ -87,7 +88,6 @@ class WalletViewModel @Inject constructor(
                 )
                 repository.updateWallet(updatedWallet)
             } else {
-                // CREATE new wallet
                 val walletId = UUID.randomUUID().toString()
                 val formatter = SimpleDateFormat("MM/yy", Locale.getDefault())
                 val finalDate = formatter.format(Date())
@@ -106,7 +106,6 @@ class WalletViewModel @Inject constructor(
                 repository.insertWallet(newWallet)
             }
 
-            // ✅ Panggil callback setelah database selesai insert/update
             onSuccess()
         }
     }
@@ -131,6 +130,33 @@ class WalletViewModel @Inject constructor(
 
     fun unarchiveWallet(id: String) {
         viewModelScope.launch { repository.updateWalletArchived(id, false) }
+    }
+
+    private val _uiTransactions = MutableStateFlow<List<TransactionUiItem>>(emptyList())
+    val uiTransactions: StateFlow<List<TransactionUiItem>> = _uiTransactions.asStateFlow()
+
+    fun loadTransactionsForWallet(walletId: String) {
+        viewModelScope.launch {
+            transactionRepository.getTransactionsByWallet(walletId).collect { entities ->
+                val uiList = entities.map { entity ->
+                    val dateString = try {
+                        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        sdf.format(Date(entity.date))
+                    } catch (e: Exception) {
+                        entity.date.toString()
+                    }
+                    TransactionUiItem(
+                        id = entity.id,
+                        title = entity.note.ifEmpty { "Transaction" },
+                        date = dateString,
+                        amount = entity.amount,
+                        type = entity.type,
+                        colorHex = if (entity.type == "EXPENSE") "#FF5252" else "#4CAF50"
+                    )
+                }
+                _uiTransactions.value = uiList
+            }
+        }
     }
 }
 

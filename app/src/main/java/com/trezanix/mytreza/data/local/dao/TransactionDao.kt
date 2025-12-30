@@ -15,7 +15,7 @@ interface TransactionDao {
     fun getAllTransactions(): Flow<List<TransactionEntity>>
 
     @Query("SELECT * FROM transactions WHERE walletId = :walletId ORDER BY date DESC")
-    fun getTransactionByWallet(walletId: String): Flow<List<TransactionEntity>>
+    fun getTransactionsByWallet(walletId: String): Flow<List<TransactionEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTransaction(transaction: TransactionEntity)

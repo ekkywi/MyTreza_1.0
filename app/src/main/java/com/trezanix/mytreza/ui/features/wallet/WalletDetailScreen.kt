@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,6 +31,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.trezanix.mytreza.R
 import com.trezanix.mytreza.ui.theme.*
+import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.Locale
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,9 +51,12 @@ fun WalletDetailScreen(
 
     LaunchedEffect(walletId) {
         viewModel.loadWalletById(walletId)
+        viewModel.loadTransactionsForWallet(walletId)
     }
 
     val walletEntity by viewModel.currentWallet.collectAsState()
+    val transactions by viewModel.uiTransactions.collectAsState()
+
     val gradients = listOf(
         Brush.linearGradient(listOf(Color(0xFF43A047), Color(0xFF1B5E20))),
         Brush.linearGradient(listOf(Color(0xFF66BB6A), Color(0xFF33691E))),
@@ -151,13 +159,36 @@ fun WalletDetailScreen(
                     )
                 }
             }
-            items(10) { index ->
-                Box(modifier = Modifier.padding(horizontal = 24.dp)) {
-                    GlassTransactionItem(
-                        title = if(index % 2 == 0) "Starbucks Coffee" else "Transfer Masuk",
-                        amount = if(index % 2 == 0) "-Rp 55.000" else "+Rp 200.000",
-                        isExpense = index % 2 == 0
-                    )
+
+            if (transactions.isEmpty()) {
+                item {
+                    Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                        Text("No Transaction History", color = Color.Gray)
+                    }
+                }
+            } else {
+                items(transactions) { trx ->
+                    Box(modifier = Modifier.padding(horizontal = 24.dp)) {
+                        val isExpense = trx.type == "EXPENSE"
+
+                        val formattedAmount = try {
+                            NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(trx.amount)
+                        } catch (e: Exception) { "Rp ${trx.amount}" }
+
+                        val formattedDate = try {
+                            val input = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                            val output = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+                            val d = input.parse(trx.date)
+                            output.format(d ?: java.util.Date())
+                        } catch (e: Exception) { trx.date }
+
+                        GlassTransactionItem(
+                            title = trx.title,
+                            date = formattedDate,
+                            amount = if(isExpense) "- $formattedAmount" else "+ $formattedAmount",
+                            isExpense = isExpense
+                        )
+                    }
                 }
             }
         }
@@ -402,7 +433,7 @@ fun StatsCard() {
 }
 
 @Composable
-fun GlassTransactionItem(title: String, amount: String, isExpense: Boolean) {
+fun GlassTransactionItem(title: String, date: String, amount: String, isExpense: Boolean) {
     Row(modifier = Modifier
         .fillMaxWidth()
         .padding(vertical = 8.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -414,7 +445,10 @@ fun GlassTransactionItem(title: String, amount: String, isExpense: Boolean) {
                 Icon(imageVector = if(isExpense) Icons.Default.ArrowOutward else Icons.Default.ArrowDownward, contentDescription = null, tint = if(isExpense) Color(0xFFE53935) else Color(0xFF4CAF50), modifier = Modifier.size(20.dp))
             }
             Spacer(modifier = Modifier.width(16.dp))
-            Column { Text(title, style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold), color = BrandDarkText); Text("Hari ini, 10:00", style = MaterialTheme.typography.bodySmall, color = TextHint) }
+            Column {
+                Text(title, style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold), color = BrandDarkText); Text("Hari ini, 10:00", style = MaterialTheme.typography.bodySmall, color = TextHint)
+                Text(date, style = MaterialTheme.typography.bodySmall, color = TextHint)
+            }
         }
         Text(amount, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold), color = if (isExpense) Color(0xFFE53935) else Color(0xFF43A047))
     }
